@@ -1,6 +1,6 @@
 <?php
 
-namespace vendor;
+namespace Fuxuqiang\Framework;
 
 class Arr extends ObjectAccess
 {

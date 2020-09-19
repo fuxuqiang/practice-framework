@@ -21,7 +21,7 @@ class Request extends Arr
         }
         $this->exists = $exists;
         $this->perPage = $perPage;
-        $this->uri = isset($server['PATH_INFO']) ? ltrim($server['PATH_INFO'], '/') : '';
+        $this->uri = isset($server['REQUEST_URI']) ? ltrim($server['REQUEST_URI'], '/') : '';
     }
 
     /**

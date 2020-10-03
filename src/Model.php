@@ -59,6 +59,22 @@ class Model extends Arr
      */
     public static function find($id)
     {
-        return self::$connector->connect()->table(self::getTable())->where('id', $id)->get(static::class);
+        if (is_array($id)) {
+            return array_map(function ($id) {
+                return self::getModel($id);
+            }, $id);
+        } else {
+            return self::getModel($id);
+        }
+    }
+
+    /**
+     * 获取设置了主键值的模型实例
+     */
+    private static function getModel($id)
+    {
+        $model = new static;
+        $model->id = $id;
+        return $model;
     }
 }

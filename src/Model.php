@@ -5,14 +5,22 @@ namespace Fuxuqiang\Framework;
 class Model extends Arr
 {
     /**
+     * @var string
+     */
+    private $table;
+
+    /**
      * @var Connector
      */
     private static $connector;
 
     /**
-     * @var string
+     * @param string $table
      */
-    private $table;
+    public function __construct(string $table = null)
+    {
+        $this->table = $table ?: static::getTable();
+    }
 
     /**
      * 设置获取数据库操作类的方法
@@ -23,19 +31,19 @@ class Model extends Arr
     }
 
     /**
-     * @param string $table
+     * 获取当前表名
      */
-    public function __construct(string $table = null)
+    public static function getTable()
     {
-        $this->table = $table ?: self::getTable();
+        return strtolower(basename(str_replace('\\', '/', static::class)));
     }
 
     /**
-     * 获取当前表名
+     * 设置模型属性
      */
-    private static function getTable()
+    public function setAttr($attrs)
     {
-        return strtolower(basename(str_replace('\\', '/', static::class)));
+        return parent::__construct($attrs);
     }
 
     /**
@@ -47,7 +55,7 @@ class Model extends Arr
     }
 
     /**
-     * 调用数据库操作类的方法
+     * 动态调用查询方法
      */
     public function __call($name, $args)
     {
@@ -55,26 +63,10 @@ class Model extends Arr
     }
 
     /**
-     * 根据id查找模型
+     * 通过静态方法动态调用查询类的方法
      */
-    public static function find($id)
+    public static function __callStatic($name, $args)
     {
-        if (is_array($id)) {
-            return array_map(function ($id) {
-                return self::getModel($id);
-            }, $id);
-        } else {
-            return self::getModel($id);
-        }
-    }
-
-    /**
-     * 获取设置了主键值的模型实例
-     */
-    private static function getModel($id)
-    {
-        $model = new static;
-        $model->id = $id;
-        return $model;
+        return (new ModelQuery(self::$connector->connect()->table(static::getTable()), static::class))->$name(...$args);
     }
 }

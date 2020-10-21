@@ -12,12 +12,13 @@ class ModelQuery
         $this->model = $model;
     }
 
-    public function find($id)
+    public function find($id, array $cols = null)
     {
         if (is_array($id)) {
+            $query = $this->query->whereIn('id', $id);
             return array_map(function ($data) {
                 return (new $this->model)->setAttr($data);
-            }, $this->query->whereIn('id', $id)->all());
+            }, $cols ? $query->all(...$cols) : $query->all());
         } else {
             $model = new $this->model;
             $model->id = $id;

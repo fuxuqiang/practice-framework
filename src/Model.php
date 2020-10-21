@@ -43,7 +43,8 @@ class Model extends Arr
      */
     public function setAttr($attrs)
     {
-        return parent::__construct($attrs);
+        parent::__construct($attrs);
+        return $this;
     }
 
     /**

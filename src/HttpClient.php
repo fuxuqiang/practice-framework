@@ -49,7 +49,7 @@ class HttpClient
     /**
      * 执行curl会话
      */
-    public function request($url, $params, $opts, $method = 'POST')
+    public function request($url, $params, $opts = [], $method = 'POST')
     {
         return curl_exec($this->getHandle($url, $params, $opts, $method));
     }

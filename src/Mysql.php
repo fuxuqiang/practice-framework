@@ -360,7 +360,7 @@ class Mysql
      */
     public function commit()
     {
-        self::$trans-- == 1 && $this->mysqli->commit();
+        --self::$trans || $this->mysqli->commit();
     }
 
     /**
@@ -368,7 +368,7 @@ class Mysql
      */
     public function rollback()
     {
-        self::$trans-- == 1 || $this->mysqli->rollback();
+        --self::$trans || $this->mysqli->rollback();
     }
 
     /**
@@ -405,5 +405,13 @@ class Mysql
     private function markers(array $data)
     {
         return '(' . rtrim(str_repeat('?,', count($data)), ',') . ')';
+    }
+
+    /**
+     * 关闭连接
+     */
+    public function __destruct()
+    {
+        $this->mysqli->close();
     }
 }

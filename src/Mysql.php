@@ -406,12 +406,4 @@ class Mysql
     {
         return '(' . rtrim(str_repeat('?,', count($data)), ',') . ')';
     }
-
-    /**
-     * 关闭连接
-     */
-    public function __destruct()
-    {
-        $this->mysqli->close();
-    }
 }

@@ -51,7 +51,12 @@ class HttpClient
      */
     public function request($url, $params, $opts = [], $method = 'POST')
     {
-        return curl_exec($this->getHandle($url, $params, $opts, $method));
+        $ch = $this->getHandle($url, $params, $opts, $method);
+        $content = curl_exec($ch);
+        if (($code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200) {
+            throw new \Exception($content, $code);
+        }
+        return $content;
     }
 
     /**

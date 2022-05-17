@@ -339,6 +339,14 @@ class Mysql
     }
 
     /**
+     * 字段自减
+     */
+    public function dec($col, $num)
+    {
+        return $this->query("UPDATE `$this->table` SET `$col`=`$col`-$num" . $this->getWhere());
+    }
+
+    /**
      * 执行DELETE语句
      */
     public function del(int $id = null)

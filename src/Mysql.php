@@ -113,7 +113,7 @@ class Mysql
     /**
      * 添加WHERE条件
      */
-    public function where($col, $operator = null, $val = null)
+    public function where(string $col, $operator = null, $val = null)
     {
         if (is_array($col)) {
             foreach ($col as $key => $item) {
@@ -257,7 +257,7 @@ class Mysql
     public function exists(string $col, $val)
     {
         $this->limit = 'LIMIT 1';
-        return $this->where($col, $val)->query($this->getSql('`' . $col . '`'))->num_rows > 0;
+        return $this->where($col, $val)->query($this->getSql("`$col`"))->num_rows > 0;
     }
 
     /**
@@ -333,17 +333,28 @@ class Mysql
     /**
      * 字段自增
      */
-    public function inc($col, $num)
+    public function inc(string $col, $num)
     {
-        return $this->query("UPDATE `$this->table` SET `$col`=`$col`+$num" . $this->getWhere());
+        $this->incOrDec($col, '+', $num);
     }
 
     /**
      * 字段自减
      */
-    public function dec($col, $num)
+    public function dec(string $col, $num)
     {
-        return $this->query("UPDATE `$this->table` SET `$col`=`$col`-$num" . $this->getWhere());
+        return $this->incOrDec($col, '-', $num);
+    }
+
+    /**
+     * 字段自增或自减
+     */
+    private function incOrDec(string $col, string $operator, $num)
+    {
+        if (!is_numeric($num)) {
+            throw new \ErrorException('第二个参数必须为数字');
+        }
+        return $this->query("UPDATE `$this->table` SET `$col`=`$col`$operator$num" . $this->getWhere());
     }
 
     /**

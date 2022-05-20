@@ -30,26 +30,14 @@ class Request extends Arr
         $this->uri = isset($server['REQUEST_URI']) ? ltrim($server['REQUEST_URI'], '/') : '';
 
         $this->rules = [
-            'mobile' => function ($mobile) {
-                    return preg_match('/^1[2-9]\d{9}$/', $mobile);
-                },
+            'mobile' => fn($mobile) => preg_match('/^1[2-9]\d{9}$/', $mobile),
             'exists' => $this->exists,
             'array' => 'is_array',
-            'min' => function ($val, $min) {
-                    return $val >= $min;
-                },
-            'int' => function ($val) {
-                    return filter_var($val, FILTER_VALIDATE_INT) !== false;
-                },
-            'nq' => function ($val, $diff) {
-                    return $val != $diff;
-                },
-            'unique' => function (...$args) {
-                    return !call_user_func($this->exists, ...$args);
-                },
-            'str' => function ($val) {
-                    return is_string($val);
-                },
+            'min' => fn($val, $min) => $val >= $min,
+            'int' => fn($val) => filter_var($val, FILTER_VALIDATE_INT) !== false,
+            'nq' => fn($val, $diff) => $val != $diff,
+            'unique' => fn(...$args) => !call_user_func($this->exists, ...$args),
+            'str' => fn($val) => is_string($val),
         ];
     }
 

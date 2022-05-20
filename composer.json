@@ -2,8 +2,8 @@
     "name": "fuxuqiang/practice-framework",
     "description": "简易PHP框架（自己练习造轮子用的）",
     "require": {
-        "php": "^7.4|^8.0",
-        "phpunit/phpunit": "^9.0"
+        "php": ">=7.4",
+        "phpunit/phpunit": ">=9.0"
     },
     "autoload": {
         "psr-4": {

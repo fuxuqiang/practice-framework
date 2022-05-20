@@ -16,9 +16,10 @@ class ModelQuery
     {
         if (is_array($id)) {
             $query = $this->query->whereIn('id', $id);
-            return array_map(function ($data) {
-                return (new $this->model)->setAttr($data);
-            }, $cols ? $query->all(...$cols) : $query->all());
+            return array_map(
+                fn($data) => (new $this->model)->setAttr($data),
+                $cols ? $query->all(...$cols) : $query->all()
+            );
         } else {
             $model = new $this->model;
             $model->id = $id;

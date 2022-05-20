@@ -234,10 +234,10 @@ class Mysql
         ) {
             $relationData = (new self($this->mysqli))->cols(...$this->relation[$table])
                 ->table($table)->whereIn('id', $foreignKeysVal)->col(null, 'id');
-            $data = array_map(function ($item) use ($table, $relationData) {
-                $item[$table] = $relationData[$item[$table . '_id']];
-                return $item;
-            }, $data);
+            $data = array_map(
+                fn($item) => $item + [$table => $relationData[$item[$table . '_id']]],
+                $data
+            );
         }
         return $data;
     }
@@ -304,9 +304,7 @@ class Mysql
     {
         if (is_array(reset($data))) {
             $cols = $this->cols;
-            $markers = implode(',', array_map(function ($item) {
-                return $this->markers($item);
-            }, $data));
+            $markers = implode(',', array_map(fn($item) => $this->markers($item), $data));
             $binds = array_merge(...$data);
         } else {
             $cols = array_keys($data);
@@ -403,9 +401,7 @@ class Mysql
      */
     private function gather(array $arr, string $format)
     {
-        return implode(',', array_map(function ($val) use ($format) {
-            return sprintf($format, $val);
-        }, $arr));
+        return implode(',', array_map(fn($val) => sprintf($format, $val), $arr));
     }
 
     /**

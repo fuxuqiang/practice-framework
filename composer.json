@@ -3,7 +3,9 @@
     "description": "简易PHP框架（自己练习造轮子用的）",
     "require": {
         "php": ">=7.4",
-        "phpunit/phpunit": ">=9.0"
+        "phpunit/phpunit": ">=9.0",
+        "ext-curl": "*",
+        "ext-mysql": "*"
     },
     "autoload": {
         "psr-4": {

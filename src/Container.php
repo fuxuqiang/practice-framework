@@ -39,7 +39,7 @@ class Container
         $reflector = new \ReflectionClass($concrete);
         if ($constructor = $reflector->getConstructor()) {
             foreach ($constructor->getParameters() as $param) {
-                if ($class = $param->getClass()) {
+                if ($class = $param->getDeclaringClass()) {
                     $constructorArgs[] = $class->newInstance();
                 }
             }

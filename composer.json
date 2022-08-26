@@ -5,7 +5,7 @@
         "php": ">=7.4",
         "phpunit/phpunit": ">=9.0",
         "ext-curl": "*",
-        "ext-mysql": "*"
+        "ext-mysqli": "*"
     },
     "autoload": {
         "psr-4": {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fuxuqiang\Framework;
+namespace Fuxuqiang\Framework\Http;
 
 class HttpClient
 {
@@ -43,7 +43,7 @@ class HttpClient
     public function addHandle($url, $params = [], $opt = [], $method = 'GET')
     {
         curl_multi_add_handle($this->mh, $ch = $this->getHandle($url, $params, $opt, $method));
-        $this->chs[(int) $ch] = ['params' => $params, 'handle' => $ch];
+        $this->chs[(int) $ch] = new CurlHandle($ch, $params);
     }
 
     /**

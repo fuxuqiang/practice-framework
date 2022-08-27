@@ -48,9 +48,7 @@ class Mysql
                 $vars = array_merge($vars, $this->params);
                 $this->stmt->bind_param($types, ...array_values($vars));
             }
-            if (!$this->stmt->execute()) {
-                throw new \ErrorException($this->mysqli->error);
-            }
+            $this->stmt->execute();
         } else {
             throw new \ErrorException($this->mysqli->error);
         }

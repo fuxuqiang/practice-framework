@@ -6,28 +6,30 @@ class HttpClient
 {
     private $mh, $chs;
 
-    public function __construct($multi = false)
+    public function __construct()
     {
-        $multi && $this->mh = curl_multi_init();
+        $this->mh = curl_multi_init();
     }
 
     /**
-     * 获取curl句柄
+     * 获取批处理会话中的curl句柄
      */
-    public function getChs()
+    public function getHandles()
     {
         return $this->chs;
     }
 
     /**
-     * 发送请求
+     * 批量发送请求
      */
-    public function multiRequest($timeout = 1)
+    public function multiRequest()
     {
         $active = null;
         do {
             while (curl_multi_exec($this->mh, $active) == CURLM_CALL_MULTI_PERFORM) {
-                curl_multi_select($this->mh, $timeout);
+                if (curl_multi_select($this->mh) == -1) {
+                    sleep(1);
+                }
             };
             while ($info = curl_multi_info_read($this->mh)) {
                 curl_multi_remove_handle($this->mh, $info['handle']);
@@ -39,20 +41,20 @@ class HttpClient
     }
 
     /**
-     * 向curl批处理会话中添加单独的curl句柄
+     * 向批处理会话中添加curl句柄
      */
     public function addHandle($url, $params = [], $opt = [], $method = 'GET')
     {
-        curl_multi_add_handle($this->mh, $ch = $this->getHandle($url, $params, $opt, $method));
+        curl_multi_add_handle($this->mh, $ch = self::getHandle($url, $params, $opt, $method));
         $this->chs[(int) $ch] = new CurlHandle($ch, $params);
     }
 
     /**
-     * 执行curl会话
+     * 发送请求
      */
-    public function request($url, $params, $opts = [], $method = 'POST')
+    public static function request($url, $params, $opts = [], $method = 'POST')
     {
-        $ch = $this->getHandle($url, $params, $opts, $method);
+        $ch = self::getHandle($url, $params, $opts, $method);
         $content = curl_exec($ch);
         if (($code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200) {
             throw new \Exception($content, $code);
@@ -63,11 +65,12 @@ class HttpClient
     /**
      * 获取curl句柄
      */
-    private function getHandle($url, $params, $opts, $method)
+    private static function getHandle($url, $params, $opts, $method)
     {
-        $ch = curl_init($url);
-        $method == 'POST' && $opts += [CURLOPT_POSTFIELDS => $params];
-        curl_setopt_array($ch, $opts + [CURLOPT_RETURNTRANSFER => true]);
+        if ($method == 'POST') {
+            $opts += [CURLOPT_POSTFIELDS => $params];
+        }
+        curl_setopt_array($ch = curl_init($url), $opts + [CURLOPT_RETURNTRANSFER => true]);
         return $ch;
     }
 }

@@ -310,7 +310,7 @@ class Mysql
             $binds = $data;
         }
         return $this->query(
-            $action . " `$this->table` (" . $this->gather($cols, '`%s`') . ') VALUES ' . $markers,
+            sprintf('%s `%s` (%s) VALUES %s', $action, $this->table, $this->gather($cols, '`%s`'), $markers),
             $binds
         );
     }
@@ -406,10 +406,12 @@ class Mysql
      * 获取查询sql
      */
     private function getSql(string $col = null)
-    {
-        return 'SELECT ' . ($col ?: $this->selectExpr ?: ($this->cols ? $this->gather($this->cols, '`%s`') : '*'))
-            . ' FROM ' . ($this->from ?: "`$this->table`") . $this->getWhere()
-            . $this->order . ' ' . $this->limit . $this->lock;
+    {   
+        return sprintf(
+            'SELECT %s FROM %s',
+            ($col ?: $this->selectExpr ?: ($this->cols ? $this->gather($this->cols, '`%s`') : '*')),
+            ($this->from ?: "`$this->table`") . $this->getWhere() . $this->order . ' ' . $this->limit . $this->lock
+        );
     }
 
     /**
@@ -417,6 +419,6 @@ class Mysql
      */
     private function markers(array $data)
     {
-        return '(' . rtrim(str_repeat('?,', count($data)), ',') . ')';
+        return sprintf('(%s)', rtrim(str_repeat('?,', count($data)), ','));
     }
 }

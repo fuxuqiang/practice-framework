@@ -22,12 +22,16 @@ class HttpClient
     /**
      * 批量发送请求
      */
-    public function multiRequest()
+    public function multiRequest($interval = 1)
     {
         $active = null;
         do {
+            $beforeActive = $active;
             curl_multi_exec($this->mh, $active);
-            curl_multi_select($this->mh);
+            if ($beforeActive == $active) {
+                return yield from $this->chs;
+            }
+            sleep($interval);
             while ($info = curl_multi_info_read($this->mh)) {
                 curl_multi_remove_handle($this->mh, $info['handle']);
                 $ch = $this->chs[$id = (int) $info['handle']];

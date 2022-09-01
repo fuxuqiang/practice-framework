@@ -26,11 +26,8 @@ class HttpClient
     {
         $active = null;
         do {
-            while (curl_multi_exec($this->mh, $active) == CURLM_CALL_MULTI_PERFORM) {
-                if (curl_multi_select($this->mh) == -1) {
-                    sleep(1);
-                }
-            };
+            curl_multi_exec($this->mh, $active);
+            curl_multi_select($this->mh);
             while ($info = curl_multi_info_read($this->mh)) {
                 curl_multi_remove_handle($this->mh, $info['handle']);
                 $ch = $this->chs[$id = (int) $info['handle']];

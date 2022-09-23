@@ -39,20 +39,12 @@ class Mysql
 
     /**
      * 执行查询
-     * @return \mysqli_result|bool
      */
     public function query(string $sql, array $vars = [])
     {
-        if ($this->stmt = $this->mysqli->prepare($sql)) {
-            if ($types = str_repeat('s', count($vars) + count($this->params))) {
-                $vars = array_merge($vars, $this->params);
-                $this->stmt->bind_param($types, ...array_values($vars));
-            }
-            $this->stmt->execute();
-        } else {
-            throw new \ErrorException($this->mysqli->error);
-        }
-        return $this->stmt->get_result() ?: true;
+        $this->stmt = $this->mysqli->prepare($sql);
+        $this->stmt->execute(array_merge($vars, $this->params));
+        return $this->stmt->get_result();
     }
 
     /**
@@ -206,8 +198,8 @@ class Mysql
     public function get(string $class = null, array $params = [])
     {
         $this->limit = 'LIMIT 1';
-        $stmt = $this->query($this->getSql());
-        return $class ? $stmt->fetch_object($class, $params) : $stmt->fetch_object();
+        $result = $this->query($this->getSql());
+        return $class ? $result->fetch_object($class, $params) : $result->fetch_object();
     }
 
     /**

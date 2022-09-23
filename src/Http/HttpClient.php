@@ -28,17 +28,17 @@ class HttpClient
         $active = 0;
         do {
             while (curl_multi_exec($this->mh, $active) != CURLM_OK);
-            usleep($interval);
             if (curl_multi_select($this->mh) == -1) {
                 return;
             }
+            usleep($interval);
             while ($info = curl_multi_info_read($this->mh)) {
                 $start = time();
                 curl_multi_remove_handle($this->mh, $info['handle']);
                 $id = (int) $info['handle'];
-                yield $this->chs[$id];
+                $ch = $this->chs[$id];
                 unset($this->chs[$id]);
-                curl_close($info['handle']);
+                yield $ch;
             }
             if (time() - $start > $timeout) {
                 return;

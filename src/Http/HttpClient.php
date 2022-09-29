@@ -22,26 +22,22 @@ class HttpClient
     /**
      * 批量发送请求
      */
-    public function multiRequest($timeout = 60, $interval = 99)
+    public function multiRequest($timeout = 30, $interval = 0)
     {
         $start = time();
         $active = 0;
         do {
             while (curl_multi_exec($this->mh, $active) != CURLM_OK);
-            if (curl_multi_select($this->mh) == -1) {
+            if (curl_multi_select($this->mh) == -1 || time() - $start > $timeout) {
+                foreach ($this->chs as $ch) {
+                    yield $this->removeHandle($ch->handle);
+                }
                 return;
             }
-            usleep($interval);
+            sleep($interval);
             while ($info = curl_multi_info_read($this->mh)) {
                 $start = time();
-                curl_multi_remove_handle($this->mh, $info['handle']);
-                $id = (int) $info['handle'];
-                $ch = $this->chs[$id];
-                unset($this->chs[$id]);
-                yield $ch;
-            }
-            if (time() - $start > $timeout) {
-                return;
+                yield $this->removeHandle($info['handle']);
             }
         } while ($this->chs);
     }
@@ -53,6 +49,18 @@ class HttpClient
     {
         curl_multi_add_handle($this->mh, $ch = self::getHandle($url, $params, $opt, $method));
         $this->chs[(int) $ch] = new CurlHandle($ch, $params);
+    }
+
+    /**
+     * 移除批处理会话中的curl句柄
+     */
+    public function removeHandle($ch)
+    {
+        curl_multi_remove_handle($this->mh, $ch);
+        $id = (int) $ch;
+        $ch = $this->chs[$id];
+        unset($this->chs[$id]);
+        return $ch;
     }
 
     /**

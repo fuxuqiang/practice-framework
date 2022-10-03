@@ -6,15 +6,17 @@ use Exception;
 
 class Request extends Arr
 {
-    private $uri, $server, $user, $exists, $perPage, $rules;
+    private $url, $user, $exists, $rules;
 
     /**
      * 初始化请求参数和验证规则
      */
-    public function __construct(array $server, array $data, callable $exists, $perPage)
-    {
-        $this->server = $server;
-
+    public function __construct(
+        private array $server,
+        array $data,
+        callable $exists,
+        private int $perPage
+    ) {
         if (!$this->data = $data) {
             if (isset($server['CONTENT_TYPE']) && $server['CONTENT_TYPE'] == 'application/json') {
                 $this->data = json_decode(file_get_contents('php://input'), true);
@@ -25,9 +27,7 @@ class Request extends Arr
 
         $this->exists = $exists;
 
-        $this->perPage = $perPage;
-
-        $this->uri = isset($server['REQUEST_URI']) ? ltrim($server['REQUEST_URI'], '/') : '';
+        $this->url = isset($server['REQUEST_URI']) ? ltrim(strstr($server['REQUEST_URI'], '?', true), '/') : '';
 
         $this->rules = [
             'mobile' => fn($mobile) => preg_match('/^1[2-9]\d{9}$/', $mobile),
@@ -50,11 +50,11 @@ class Request extends Arr
     }
 
     /**
-     * 获取请求的uri
+     * 获取请求的url
      */
-    public function uri()
+    public function url()
     {
-        return $this->uri;
+        return $this->url;
     }
 
     /**

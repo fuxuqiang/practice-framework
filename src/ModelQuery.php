@@ -29,7 +29,6 @@ class ModelQuery
 
     public function __call($name, $args)
     {
-        $this->query->$name(...$args);
-        return $this;
+        return $this->query->$name(...$args);
     }
 }

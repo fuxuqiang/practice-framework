@@ -2,6 +2,8 @@
 
 namespace Fuxuqiang\Framework\Route;
 
+use Fuxuqiang\Framework\ResponseException;
+
 class Router
 {
     public function __construct(private $target) {}
@@ -12,7 +14,7 @@ class Router
     public function handle($namespace)
     {
         $search = strstr($namespace, '\\', true) . '\\';
-        foreach ((require __DIR__ . '/../../../../composer/autoload_psr4.php')[$search] as $item) {
+        foreach ((require __DIR__ . str_repeat(DIRECTORY_SEPARATOR.'..', 4) . '/composer/autoload_psr4.php')[$search] as $item) {
             $handle = opendir(str_replace($search, $item . DIRECTORY_SEPARATOR, $namespace));
             while ($file = readdir($handle)) {
                 if ($file != '.' && $file != '..') {
@@ -30,7 +32,7 @@ class Router
                 }
             }
         }
-        file_put_contents($this->target, '<?php' . PHP_EOL . 'return ' . var_export($routes, true) . ';');
+        file_put_contents($this->target, sprintf('<?php%sreturn %s;', PHP_EOL, var_export($routes, true)));
     }
 
     /**
@@ -38,6 +40,6 @@ class Router
      */
     public function get($method, $url)
     {
-        return (require $this->target)[$method][$url] ?? throw new \Exception('', 404);
+        return (require $this->target)[$method][$url] ?? throw new ResponseException('未找到链接', ResponseException::NOT_FOUND);
     }
 }

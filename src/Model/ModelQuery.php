@@ -1,12 +1,12 @@
 <?php
 
-namespace Fuxuqiang\Framework;
+namespace Fuxuqiang\Framework\Model;
 
 class ModelQuery
 {
     private $model, $query;
 
-    public function __construct(Mysql $query, string $model)
+    public function __construct(\Fuxuqiang\Framework\Mysql $query, string $model)
     {
         $this->query = $query;
         $this->model = $model;

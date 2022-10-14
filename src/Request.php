@@ -2,8 +2,6 @@
 
 namespace Fuxuqiang\Framework;
 
-use Exception;
-
 class Request extends Arr
 {
     private $url, $user, $exists, $rules;
@@ -27,7 +25,7 @@ class Request extends Arr
 
         $this->exists = $exists;
 
-        $this->url = isset($server['REQUEST_URI']) ? ltrim(strstr($server['REQUEST_URI'], '?', true), '/') : '';
+        $this->url = isset($server['REQUEST_URI']) ? ltrim(preg_replace('/\?.*/', '', $server['REQUEST_URI']), '/') : '';
 
         $this->rules = [
             'mobile' => fn($mobile) => preg_match('/^1[2-9]\d{9}$/', $mobile),
@@ -111,7 +109,7 @@ class Request extends Arr
             if (strpos($param, '.*.')) {
                 $keys = explode('.*.', $param);
                 if (!is_array($this->data[$keys[0]]) || empty($this->data[$keys[0]])) {
-                    throw new Exception('无效的' . $keys[0]);
+                    throw new ResponseException('无效的'.$keys[0], ResponseException::BAD_REQUEST);
                 }
                 foreach ($this->data[$keys[0]] as $key => $item) {
                     $this->validateItem($item[$keys[1]] ?? null, $ruleItems, str_replace('*', $key, $param));
@@ -131,7 +129,7 @@ class Request extends Arr
     {
         $ruleItems = explode('|', $ruleItems);
         if (in_array('required', $ruleItems) && empty($data)) {
-            throw new Exception('缺少参数' . $param);
+            throw new ResponseException('缺少参数'.$param, ResponseException::BAD_REQUEST);
         }
         foreach ($ruleItems as $ruleItem) {
             $ruleItem = explode(':', $ruleItem);
@@ -145,8 +143,8 @@ class Request extends Arr
                     ...(isset($ruleItem[1]) ? explode(',', $ruleItem[1]) : [])
                 )
             ) {
-                throw new Exception('无效的' . $param);
-            }      
+                throw new ResponseException('无效的'.$param, ResponseException::BAD_REQUEST);
+            }
         }
     }
 }

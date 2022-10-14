@@ -1,6 +1,8 @@
 <?php
 
-namespace Fuxuqiang\Framework;
+namespace Fuxuqiang\Framework\Model;
+
+use Fuxuqiang\Framework\{Arr, Connector};
 
 class Model extends Arr
 {

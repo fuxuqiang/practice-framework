@@ -4,29 +4,31 @@ namespace Fuxuqiang\Framework\Model;
 
 class ModelQuery
 {
-    private $model, $query;
+    public function __construct(
+        private \Fuxuqiang\Framework\Mysql $query,
+        private Model $model
+    ) {}
 
-    public function __construct(\Fuxuqiang\Framework\Mysql $query, string $model)
-    {
-        $this->query = $query;
-        $this->model = $model;
-    }
-
+    /**
+     * 根据主键查找模型
+     */
     public function find($id, array $cols = null)
     {
+        $pirmaryKey = $this->model->getPrimaryKey();
         if (is_array($id)) {
-            $query = $this->query->whereIn('id', $id);
+            $query = $this->query->whereIn($pirmaryKey, $id);
             return array_map(
-                fn($data) => (new $this->model)->setAttr($data),
+                fn($data) => (clone $this->model)->setAttr($data),
                 $cols ? $query->all(...$cols) : $query->all()
             );
         } else {
-            $model = new $this->model;
-            $model->id = $id;
-            return $model;
+            return $this->query->where($pirmaryKey, $id)->get(get_class($this->model));
         }
     }
 
+    /**
+     * 动态调用Mysql类方法
+     */
     public function __call($name, $args)
     {
         return $this->query->$name(...$args);

@@ -2,9 +2,7 @@
 
 namespace Fuxuqiang\Framework\Model;
 
-use Fuxuqiang\Framework\{Arr, Connector};
-
-class Model extends Arr
+class Model
 {
     /**
      * @var string
@@ -17,6 +15,11 @@ class Model extends Arr
     private static $connector;
 
     /**
+     * @var string
+     */
+    protected $primaryKey;
+
+    /**
      * @param string $table
      */
     public function __construct(string $table = null)
@@ -27,7 +30,7 @@ class Model extends Arr
     /**
      * 设置获取数据库操作类的方法
      */
-    public static function setConnector(Connector $connector)
+    public static function setConnector(\Fuxuqiang\Framework\Connector $connector)
     {
         self::$connector = $connector;
     }
@@ -41,20 +44,22 @@ class Model extends Arr
     }
 
     /**
+     * 获取表主键
+     */
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
+    /**
      * 设置模型属性
      */
     public function setAttr($attrs)
     {
-        parent::__construct($attrs);
+        foreach ($attrs as $key => $attr) {
+            $this->{$key} = $attr;
+        }
         return $this;
-    }
-
-    /**
-     * 设置模型字段
-     */
-    public function __set($name, $value)
-    {
-        $this->data[$name] = $value;
     }
 
     /**
@@ -62,7 +67,10 @@ class Model extends Arr
      */
     public function __call($name, $args)
     {
-        return self::$connector->connect()->table($this->table)->where('id', $this->id)->$name(...$args);
+        return self::$connector->connect()
+            ->table($this->table)
+            ->where($this->primaryKey, $this->data[$this->primaryKey])
+            ->$name(...$args);
     }
 
     /**
@@ -70,6 +78,6 @@ class Model extends Arr
      */
     public static function __callStatic($name, $args)
     {
-        return (new ModelQuery(self::$connector->connect()->table(static::getTable()), static::class))->$name(...$args);
+        return (new ModelQuery(self::$connector->connect()->table(static::getTable()), new static))->$name(...$args);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Fuxuqiang\Framework\Model;
 
+use Fuxuqiang\Framework\Connector;
+
 class Model
 {
     /**
@@ -30,7 +32,7 @@ class Model
     /**
      * 设置获取数据库操作类的方法
      */
-    public static function setConnector(\Fuxuqiang\Framework\Connector $connector)
+    public static function setConnector(Connector $connector)
     {
         self::$connector = $connector;
     }

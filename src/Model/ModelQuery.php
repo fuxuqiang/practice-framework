@@ -2,12 +2,11 @@
 
 namespace Fuxuqiang\Framework\Model;
 
+use Fuxuqiang\Framework\Mysql;
+
 class ModelQuery
 {
-    public function __construct(
-        private \Fuxuqiang\Framework\Mysql $query,
-        private Model $model
-    ) {}
+    public function __construct(private Mysql $query, private Model $model) {}
 
     /**
      * 根据主键查找模型
@@ -31,6 +30,11 @@ class ModelQuery
      */
     public function __call($name, $args)
     {
-        return $this->query->$name(...$args);
+        if (method_exists($this->model, $method = 'scope' . ucfirst($name))) {
+            $result = $this->model->$method($this->query, ...$args);
+        } else {
+            $result = $this->query->$name(...$args); 
+        }
+        return $result instanceof Mysql ? $this : $result;
     }
 }

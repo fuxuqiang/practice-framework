@@ -21,8 +21,16 @@ class ModelQuery
                 $cols ? $query->all(...$cols) : $query->all()
             );
         } else {
-            return $this->query->where($pirmaryKey, $id)->get(get_class($this->model));
+            return $this->query->where($pirmaryKey, $id)->first($this->model::class);
         }
+    }
+
+    /**
+     * 查找第一个模型
+     */
+    public function first()
+    {
+        return $this->query->first($this->model::class);
     }
 
     /**
@@ -33,7 +41,7 @@ class ModelQuery
         if (method_exists($this->model, $method = 'scope' . ucfirst($name))) {
             $result = $this->model->$method($this->query, ...$args);
         } else {
-            $result = $this->query->$name(...$args); 
+            $result = $this->query->$name(...$args);
         }
         return $result instanceof Mysql ? $this : $result;
     }

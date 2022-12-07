@@ -195,7 +195,7 @@ class Mysql
     /**
      * 返回查询结果首行对象
      */
-    public function get(string $class = null, array $params = [])
+    public function first(string $class = null, array $params = [])
     {
         $this->limit = 'LIMIT 1';
         $result = $this->query($this->getSql());
@@ -208,7 +208,7 @@ class Mysql
     public function val(string $col)
     {
         $this->limit = 'LIMIT 1';
-        return ($row = $this->cols($col)->get()) ? $row->$col : null;
+        return ($row = $this->cols($col)->first()) ? $row->$col : null;
     }
 
     /**
@@ -299,7 +299,7 @@ class Mysql
         } else {
             $cols = array_keys($data);
             $markers = $this->markers($data);
-            $binds = $data;
+            $binds = array_values($data);
         }
         return $this->query(
             sprintf('%s `%s` (%s) VALUES %s', $action, $this->table, $this->gather($cols, '`%s`'), $markers),

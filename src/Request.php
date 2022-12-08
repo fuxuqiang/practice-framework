@@ -2,15 +2,17 @@
 
 namespace Fuxuqiang\Framework;
 
-class Request extends Arr
+class Request extends ObjectAccess
 {
-    private $url, $user, $exists, $rules;
+    private $user, $exists, $rules;
+
+    public readonly string $uri;
 
     /**
      * 初始化请求参数和验证规则
      */
     public function __construct(
-        private array $server,
+        public readonly array $server,
         array $data,
         callable $exists,
         private int $perPage
@@ -25,7 +27,7 @@ class Request extends Arr
 
         $this->exists = $exists;
 
-        $this->url = isset($server['REQUEST_URI']) ? ltrim(preg_replace('/\?.*/', '', $server['REQUEST_URI']), '/') : '';
+        $this->uri = isset($server['REQUEST_URI']) ? ltrim(preg_replace('/\?.*/', '', $server['REQUEST_URI']), '/') : '';
 
         $this->rules = [
             'mobile' => fn($mobile) => preg_match('/^1[2-9]\d{9}$/', $mobile),
@@ -37,22 +39,6 @@ class Request extends Arr
             'unique' => fn(...$args) => !call_user_func($this->exists, ...$args),
             'str' => fn($val) => is_string($val),
         ];
-    }
-
-    /**
-     * 获取$server
-     */
-    public function server()
-    {
-        return $this->server;
-    }
-
-    /**
-     * 获取请求的url
-     */
-    public function url()
-    {
-        return $this->url;
     }
 
     /**
@@ -119,7 +105,7 @@ class Request extends Arr
             }
         }
 
-        return $this->get(...array_keys($paramsRules));
+        return $this->getData(...array_keys($paramsRules));
     }
 
     /**

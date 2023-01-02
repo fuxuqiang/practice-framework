@@ -71,7 +71,7 @@ class Model
     {
         return self::$connector->connect()
             ->table($this->table)
-            ->where($this->primaryKey, $this->data[$this->primaryKey])
+            ->where($this->primaryKey, $this->{$this->primaryKey})
             ->$name(...$args);
     }
 

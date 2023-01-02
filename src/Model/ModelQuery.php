@@ -15,14 +15,22 @@ class ModelQuery
     {
         $pirmaryKey = $this->model->getPrimaryKey();
         if (is_array($id)) {
-            $query = $this->query->whereIn($pirmaryKey, $id);
-            return array_map(
-                fn($data) => (clone $this->model)->setAttr($data),
-                $cols ? $query->all(...$cols) : $query->all()
-            );
+            $this->query->whereIn($pirmaryKey, $id);
+            return $this->all($cols);
         } else {
             return $this->query->where($pirmaryKey, $id)->first($this->model::class);
         }
+    }
+
+    /**
+     * 查找模型集合
+     */
+    public function all(array $cols = null)
+    {
+        return array_map(
+            fn($data) => (clone $this->model)->setAttr($data),
+            $cols ? $this->query->all(...$cols) : $this->query->all()
+        );
     }
 
     /**

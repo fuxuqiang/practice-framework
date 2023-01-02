@@ -188,7 +188,7 @@ class Mysql
     public function rand(int $limit)
     {
         $this->order = ' ORDER BY RAND()';
-        $this->limit = 'LIMIT ' . $limit;
+        $this->limit = $limit;
         return $this;
     }
 
@@ -197,7 +197,7 @@ class Mysql
      */
     public function first(string $class = null, array $params = [])
     {
-        $this->limit = 'LIMIT 1';
+        $this->limit = 1;
         $result = $this->query($this->getSql());
         return $class ? $result->fetch_object($class, $params) : $result->fetch_object();
     }
@@ -207,7 +207,7 @@ class Mysql
      */
     public function val(string $col)
     {
-        $this->limit = 'LIMIT 1';
+        $this->limit = 1;
         return ($row = $this->cols($col)->first()) ? $row->$col : null;
     }
 
@@ -246,7 +246,7 @@ class Mysql
      */
     public function exists(string $col, $val)
     {
-        $this->limit = 'LIMIT 1';
+        $this->limit = 1;
         return $this->where($col, $val)->query($this->getSql("`$col`"))->num_rows > 0;
     }
 
@@ -255,7 +255,7 @@ class Mysql
      */
     public function paginate(int $page, int $perPage)
     {
-        $this->limit = 'LIMIT ' . ($page - 1) * $perPage . ',' . $perPage;
+        $this->limit = ($page - 1) * $perPage . ',' . $perPage;
         return [
             'data' => $this->all(),
             'total' => $this->count()
@@ -314,8 +314,17 @@ class Mysql
     {
         return $this->query(
             "UPDATE `$this->table` SET " . $this->gather(array_keys($data), '`%s`=?') . $this->getWhere(),
-            $data
+            array_values($data)
         );
+    }
+
+    /**
+     * 添加LIMIT子句
+     */
+    public function limit(int $offset, int $rowCount = null)
+    {
+        $this->limit = $rowCount ?  $offset . ',' . $rowCount : $offset;
+        return $this;
     }
 
     /**
@@ -402,7 +411,7 @@ class Mysql
         return sprintf(
             'SELECT %s FROM %s',
             ($col ?: $this->selectExpr ?: ($this->cols ? $this->gather($this->cols, '`%s`') : '*')),
-            ($this->from ?: "`$this->table`") . $this->getWhere() . $this->order . ' ' . $this->limit . $this->lock
+            ($this->from ?: "`$this->table`") . $this->getWhere() . $this->order . ' LIMIT ' . $this->limit . $this->lock
         );
     }
 

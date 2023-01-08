@@ -27,7 +27,7 @@ class Mysql
     /**
      * @var array
      */
-    private $cols, $relation, $conds, $params = [];
+    private $fields, $relation, $conds, $params = [];
 
     /**
      * @param \mysqli
@@ -85,9 +85,9 @@ class Mysql
     /**
      * 设置查询列
      */
-    public function cols(...$cols)
+    public function fields(...$fields)
     {
-        $this->cols = $cols;
+        $this->fields = $fields;
         return $this;
     }
 
@@ -103,7 +103,7 @@ class Mysql
     /**
      * 添加WHERE条件
      */
-    public function where(string $col, $operator = null, $val = null)
+    public function where(array|string $col, $operator = null, $val = null)
     {
         if (is_array($col)) {
             foreach ($col as $key => $item) {
@@ -128,7 +128,7 @@ class Mysql
      */
     private function setWhere(string $col, string $operator, $val)
     {
-        $this->whereRaw("`$col`$operator?", [$val]);
+        $this->whereRaw("`$col`$operator ?", [$val]);
     }
 
     /**
@@ -174,6 +174,22 @@ class Mysql
     }
 
     /**
+     * 添加 WHERE LIKE 条件
+     */
+    public function whereLike(string|array $column, string $val)
+    {
+        if (is_array($column)) {
+            foreach ($column as $item) {
+                $conds[] = "`$item` LIKE ?";
+                $vals[] = $val;
+            }
+            return $this->whereRaw(implode(' OR ', $conds), $vals);
+        }
+        $this->setWhere($column, 'LIKE', $val);
+        return $this;
+    }
+
+    /**
      * 添加 FOR UPDATE 锁
      */
     public function lock()
@@ -208,22 +224,22 @@ class Mysql
     public function val(string $col)
     {
         $this->limit = 1;
-        return ($row = $this->cols($col)->first()) ? $row->$col : null;
+        return ($row = $this->fields($col)->first()) ? $row->$col : null;
     }
 
     /**
      * 获取查询结果集
      */
-    public function all(...$cols)
+    public function all(...$fields)
     {
-        $this->cols || $this->cols = $cols;
+        $this->fields || $this->fields = $fields;
         $data = $this->select($this->getSql());
         if (
             $this->relation && ($table = key($this->relation))
             && $foreignKeysVal = array_column($data, $table . '_id')
         ) {
-            $relationData = (new self($this->mysqli))->cols(...$this->relation[$table])
-                ->table($table)->whereIn('id', $foreignKeysVal)->col(null, 'id');
+            $relationData = (new self($this->mysqli))->fields(...$this->relation[$table])
+                ->table($table)->whereIn('id', $foreignKeysVal)->column(null, 'id');
             $data = array_map(
                 fn($item) => $item + [$table => $relationData[$item[$table . '_id']]],
                 $data
@@ -235,9 +251,9 @@ class Mysql
     /**
      * 获取查询结果的指定列
      */
-    public function col($col, string $idx = null)
+    public function column($col, string $idx = null)
     {
-        $col && $this->cols = $idx ? [$col, $idx] : [$col];
+        $col && $this->fields = $idx ? [$col, $idx] : [$col];
         return array_column($this->all(), $col, $idx);
     }
 
@@ -293,16 +309,16 @@ class Mysql
     private function into(string $action, array $data)
     {
         if (is_array(reset($data))) {
-            $cols = $this->cols;
+            $fields = $this->fields;
             $markers = implode(',', array_map(fn($item) => $this->markers($item), $data));
             $binds = array_merge(...$data);
         } else {
-            $cols = array_keys($data);
+            $fields = array_keys($data);
             $markers = $this->markers($data);
             $binds = array_values($data);
         }
         return $this->query(
-            sprintf('%s `%s` (%s) VALUES %s', $action, $this->table, $this->gather($cols, '`%s`'), $markers),
+            sprintf('%s `%s` (%s) VALUES %s', $action, $this->table, $this->gather($fields, '`%s`'), $markers),
             $binds
         );
     }
@@ -410,8 +426,8 @@ class Mysql
     {   
         return sprintf(
             'SELECT %s FROM %s',
-            ($col ?: $this->selectExpr ?: ($this->cols ? $this->gather($this->cols, '`%s`') : '*')),
-            ($this->from ?: "`$this->table`") . $this->getWhere() . $this->order . ' LIMIT ' . $this->limit . $this->lock
+            ($col ?: $this->selectExpr ?: ($this->fields ? $this->gather($this->fields, '`%s`') : '*')),
+            ($this->from ?: "`$this->table`") . $this->getWhere() . $this->order . ($this->limit ? ' LIMIT ' . $this->limit : ' ') . $this->lock
         );
     }
 

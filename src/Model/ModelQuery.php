@@ -6,17 +6,25 @@ use Fuxuqiang\Framework\Mysql;
 
 class ModelQuery
 {
-    public function __construct(private Mysql $query, private Model $model) {}
+    public function __construct(private readonly Mysql $query, private readonly Model $model)
+    {
+        $this->query->fields(
+            ...array_map(
+                fn($fields) => $fields->getName(),
+                (new \ReflectionClass($model))->getProperties(\ReflectionProperty::IS_PUBLIC)
+            )
+        );
+    }
 
     /**
      * 根据主键查找模型
      */
-    public function find($id, array $cols = null)
+    public function find($id, array $fields = null)
     {
         $pirmaryKey = $this->model->getPrimaryKey();
         if (is_array($id)) {
             $this->query->whereIn($pirmaryKey, $id);
-            return $this->all($cols);
+            return $this->all($fields);
         } else {
             return $this->query->where($pirmaryKey, $id)->first($this->model::class);
         }
@@ -25,11 +33,11 @@ class ModelQuery
     /**
      * 查找模型集合
      */
-    public function all(array $cols = null)
+    public function all(array $fields = null)
     {
         return array_map(
             fn($data) => (clone $this->model)->setAttr($data),
-            $cols ? $this->query->all(...$cols) : $this->query->all()
+            $fields ? $this->query->all(...$fields) : $this->query->all()
         );
     }
 

@@ -27,7 +27,7 @@ class Mysql
     /**
      * @var array
      */
-    private $fields, $relation, $conds, $params = [];
+    private $fields, $conds, $params = [];
 
     /**
      * @param \mysqli
@@ -85,25 +85,18 @@ class Mysql
     /**
      * 设置查询列
      */
-    public function fields(...$fields)
+    public function fields(array $fields = null)
     {
-        $this->fields = $fields;
-        return $this;
-    }
-
-    /**
-     * 设置关联查询
-     */
-    public function with(array $relation)
-    {
-        $this->relation = $relation;
+        if ($fields) {
+            $this->fields = $fields;   
+        }
         return $this;
     }
 
     /**
      * 添加WHERE条件
      */
-    public function where(array|string $col, $operator = null, $val = null)
+    public function where(array|string $col, string $operator = null, $val = null)
     {
         if (is_array($col)) {
             foreach ($col as $key => $item) {
@@ -211,49 +204,36 @@ class Mysql
     /**
      * 返回查询结果首行对象
      */
-    public function first(string $class = null, array $params = [])
+    public function first(array $fields = null, string $class = null)
     {
         $this->limit = 1;
-        $result = $this->query($this->getSql());
-        return $class ? $result->fetch_object($class, $params) : $result->fetch_object();
+        $result = $this->fields($fields)->query($this->getSql());
+        return $class ? $result->fetch_object($class) : $result->fetch_object();
     }
 
     /**
      * 获取查询结果首行单个列的值
      */
-    public function val(string $col)
+    public function value(string $field)
     {
         $this->limit = 1;
-        return ($row = $this->fields($col)->first()) ? $row->$col : null;
+        return ($row = $this->first([$field])) ? $row->$field : null;
     }
 
     /**
      * 获取查询结果集
      */
-    public function all(...$fields)
+    public function all(array $fields = null)
     {
-        $this->fields || $this->fields = $fields;
-        $data = $this->select($this->getSql());
-        if (
-            $this->relation && ($table = key($this->relation))
-            && $foreignKeysVal = array_column($data, $table . '_id')
-        ) {
-            $relationData = (new self($this->mysqli))->fields(...$this->relation[$table])
-                ->table($table)->whereIn('id', $foreignKeysVal)->column(null, 'id');
-            $data = array_map(
-                fn($item) => $item + [$table => $relationData[$item[$table . '_id']]],
-                $data
-            );
-        }
-        return $data;
+        return $this->fields($fields)->select($this->getSql());
     }
 
     /**
      * 获取查询结果的指定列
      */
-    public function column($col, string $idx = null)
+    public function column(string $col, string $idx = null)
     {
-        $col && $this->fields = $idx ? [$col, $idx] : [$col];
+        $this->fields = $idx ? [$col, $idx] : [$col];
         return array_column($this->all(), $col, $idx);
     }
 
@@ -346,7 +326,7 @@ class Mysql
     /**
      * 字段自增
      */
-    public function inc(string $col, $num)
+    public function increment(string $col, $num)
     {
         $this->incOrDec($col, '+', $num);
     }
@@ -354,7 +334,7 @@ class Mysql
     /**
      * 字段自减
      */
-    public function dec(string $col, $num)
+    public function decrement(string $col, $num)
     {
         return $this->incOrDec($col, '-', $num);
     }
@@ -384,7 +364,7 @@ class Mysql
      */
     public function begin()
     {
-        self::$trans++ || $this->mysqli->begin_transaction();
+        return self::$trans++ || $this->mysqli->begin_transaction();
     }
 
     /**
@@ -392,7 +372,7 @@ class Mysql
      */
     public function commit()
     {
-        --self::$trans || $this->mysqli->commit();
+        return --self::$trans || $this->mysqli->commit();
     }
 
     /**
@@ -400,7 +380,7 @@ class Mysql
      */
     public function rollback()
     {
-        --self::$trans || $this->mysqli->rollback();
+        return --self::$trans || $this->mysqli->rollback();
     }
 
     /**

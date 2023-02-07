@@ -6,15 +6,7 @@ use Fuxuqiang\Framework\Mysql;
 
 class ModelQuery
 {
-    public function __construct(private readonly Mysql $query, private readonly Model $model)
-    {
-        $this->query->fields(
-            ...array_map(
-                fn($fields) => $fields->getName(),
-                (new \ReflectionClass($model))->getProperties(\ReflectionProperty::IS_PUBLIC)
-            )
-        );
-    }
+    public function __construct(private readonly Mysql $query, private readonly Model $model) {}
 
     /**
      * 根据主键查找模型
@@ -22,11 +14,12 @@ class ModelQuery
     public function find($id, array $fields = null)
     {
         $pirmaryKey = $this->model->getPrimaryKey();
+        $fields = $this->getFields($fields);
         if (is_array($id)) {
             $this->query->whereIn($pirmaryKey, $id);
             return $this->all($fields);
         } else {
-            return $this->query->where($pirmaryKey, $id)->first($this->model::class);
+            return $this->query->where($pirmaryKey, $id)->first($fields, $this->model::class);
         }
     }
 
@@ -37,16 +30,27 @@ class ModelQuery
     {
         return array_map(
             fn($data) => (clone $this->model)->setAttr($data),
-            $fields ? $this->query->all(...$fields) : $this->query->all()
+            $this->query->all($this->getFields($fields))
         );
     }
 
     /**
      * 查找第一个模型
      */
-    public function first()
+    public function first(array $fields = null)
     {
-        return $this->query->first($this->model::class);
+        return $this->query->first($this->getFields($fields), $this->model::class);
+    }
+
+    /**
+     * 获取默认的表字段
+     */
+    private function getFields($fields)
+    {
+        return $fields ?: array_map(
+            fn($field) => $field->getName(),
+            (new \ReflectionClass($this->model))->getProperties(\ReflectionProperty::IS_PUBLIC)
+        );
     }
 
     /**

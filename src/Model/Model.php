@@ -19,7 +19,7 @@ class Model
     /**
      * @var string
      */
-    protected $primaryKey;
+    protected $primaryKey = 'id';
 
     /**
      * @param string $table
@@ -42,7 +42,9 @@ class Model
      */
     public static function getTable()
     {
-        return strtolower(basename(str_replace('\\', '/', static::class)));
+        return strtolower(
+            preg_replace('/([a-z])([A-Z])/', '$1_$2', basename(str_replace('\\', '/', static::class)))
+        );
     }
 
     /**

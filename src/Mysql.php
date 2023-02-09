@@ -196,8 +196,17 @@ class Mysql
      */
     public function rand(int $limit)
     {
-        $this->order = ' ORDER BY RAND()';
+        $this->order = 'RAND()';
         $this->limit = $limit;
+        return $this;
+    }
+
+    /**
+     * ORDER BY
+     */
+    public function orderByDesc($field)
+    {
+        $this->order = "`$field` DESC";
         return $this;
     }
 
@@ -407,7 +416,11 @@ class Mysql
         return sprintf(
             'SELECT %s FROM %s',
             ($col ?: $this->selectExpr ?: ($this->fields ? $this->gather($this->fields, '`%s`') : '*')),
-            ($this->from ?: "`$this->table`") . $this->getWhere() . $this->order . ($this->limit ? ' LIMIT ' . $this->limit : ' ') . $this->lock
+            ($this->from ?: "`$this->table`")
+                . $this->getWhere()
+                . ($this->order ? ' ORDER BY ' . $this->order : '')
+                . ($this->limit ? ' LIMIT ' . $this->limit : '')
+                . $this->lock
         );
     }
 

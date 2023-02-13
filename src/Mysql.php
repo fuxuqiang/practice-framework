@@ -202,7 +202,16 @@ class Mysql
     }
 
     /**
-     * ORDER BY
+     * ORDER BY expr
+     */
+    public function orderBy($field)
+    {
+        $this->order = "`$field`";
+        return $this;
+    }
+
+    /**
+     * ORDER BY expr DESC
      */
     public function orderByDesc($field)
     {
@@ -272,7 +281,23 @@ class Mysql
      */
     public function count()
     {
-        return $this->query($this->getSql('COUNT(*)'))->fetch_row()[0];
+        return $this->aggregate('COUNT(*)');
+    }
+
+    /**
+     * SUM查询
+     */
+    public function sum($field)
+    {
+        return $this->aggregate("SUM(`$field`)");
+    }
+
+    /**
+     * 聚合查询
+     */
+    private function aggregate($expr)
+    {
+        return $this->query($this->getSql($expr))->fetch_row()[0];
     }
 
     /**

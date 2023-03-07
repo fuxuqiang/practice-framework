@@ -8,4 +8,9 @@ class CurlHandle
         public readonly mixed $handle,
         public readonly array $params
     ) {}
+
+    public function getContent(): ?string
+    {
+        return curl_multi_getcontent($this->handle);
+    }
 }

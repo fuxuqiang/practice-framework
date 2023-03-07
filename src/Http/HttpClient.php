@@ -2,9 +2,13 @@
 
 namespace Fuxuqiang\Framework\Http;
 
+use Exception;
+
 class HttpClient
 {
-    private $mh, $chs;
+    private \CurlMultiHandle $mh;
+
+    private array $chs;
 
     public function __construct()
     {
@@ -14,7 +18,7 @@ class HttpClient
     /**
      * 获取批处理会话中的curl句柄
      */
-    public function getHandles()
+    public function getHandles(): array
     {
         return $this->chs;
     }
@@ -45,7 +49,7 @@ class HttpClient
     /**
      * 向批处理会话中添加curl句柄
      */
-    public function addHandle($url, $params = [], $opt = [], $method = 'GET')
+    public function addHandle(string $url, array $params = [], array $opt = [], string $method = 'GET'): void
     {
         curl_multi_add_handle($this->mh, $ch = self::getHandle($url, $params, $opt, $method));
         $this->chs[(int) $ch] = new CurlHandle($ch, $params);
@@ -54,7 +58,7 @@ class HttpClient
     /**
      * 移除批处理会话中的curl句柄
      */
-    public function removeHandle($ch)
+    public function removeHandle($ch): CurlHandle
     {
         curl_multi_remove_handle($this->mh, $ch);
         $id = (int) $ch;
@@ -65,13 +69,14 @@ class HttpClient
 
     /**
      * 发送请求
+     * @throws Exception
      */
-    public static function request($url, $params, $opts = [], $method = 'POST')
+    public static function request($url, $params, $opts = [], $method = 'POST'): bool|string
     {
         $ch = self::getHandle($url, $params, $opts, $method);
         $content = curl_exec($ch);
         if (($code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200) {
-            throw new \Exception($content, $code);
+            throw new Exception($content, $code);
         }
         return $content;
     }
@@ -79,7 +84,7 @@ class HttpClient
     /**
      * 获取curl句柄
      */
-    private static function getHandle($url, $params, $opts, $method)
+    private static function getHandle($url, $params, $opts, $method): \CurlHandle|bool
     {
         if ($method == 'POST') {
             $opts += [CURLOPT_POSTFIELDS => $params];

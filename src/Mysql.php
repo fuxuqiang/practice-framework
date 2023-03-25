@@ -2,7 +2,6 @@
 
 namespace Fuxuqiang\Framework;
 
-use ErrorException;
 use mysqli;
 use mysqli_stmt;
 use mysqli_result;
@@ -81,11 +80,9 @@ class Mysql
     /**
      * 设置查询列
      */
-    public function fields(array $fields = null): static
+    public function fields(array $fields): static
     {
-        if ($fields) {
-            $this->fields = $fields;
-        }
+        $this->fields = $fields;
         return $this;
     }
 
@@ -345,9 +342,9 @@ class Mysql
     /**
      * 执行UPDATE语句
      */
-    public function update(array $data): mysqli_result|bool
+    public function update(array $data): bool
     {
-        return $this->query(
+        return $this->executeQuery(
             "UPDATE `$this->table` SET " . $this->gather(array_keys($data), '`%s`=?') . $this->getWhere(),
             array_values($data)
         );
@@ -380,23 +377,18 @@ class Mysql
 
     /**
      * 字段自增或自减
-     * @throws ErrorException
      */
-    private function incOrDec(string $col, string $operator, $num): bool
+    private function incOrDec(string $col, string $operator, int|float $num): bool
     {
-        if (!is_numeric($num)) {
-            throw new ErrorException('第二个参数必须为数字');
-        }
-        return $this->mysqli->real_query("UPDATE `$this->table` SET `$col`=`$col`$operator$num" . $this->getWhere());
+        return $this->executeQuery("UPDATE `$this->table` SET `$col`=`$col`$operator?" . $this->getWhere(), [$num]);
     }
 
     /**
      * 执行DELETE语句
      */
-    public function delete(int $id = null): bool
+    public function delete(): bool
     {
-        return $id ? $this->mysqli->real_query("DELETE FROM `$this->table` WHERE `id`=?", [$id])
-            : $this->mysqli->real_query("DELETE FROM `$this->table`" . $this->getWhere());
+        return $this->executeQuery("DELETE FROM `$this->table`" . $this->getWhere());
     }
 
     /**

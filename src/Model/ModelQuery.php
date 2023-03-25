@@ -13,20 +13,20 @@ class ModelQuery
      */
     public function find($id, array $fields = null)
     {
-        $pirmaryKey = $this->model->getPrimaryKey();
+        $primaryKey = $this->model->getPrimaryKey();
         $fields = $this->getFields($fields);
         if (is_array($id)) {
-            $this->query->whereIn($pirmaryKey, $id);
+            $this->query->whereIn($primaryKey, $id);
             return $this->all($fields);
         } else {
-            return $this->query->where($pirmaryKey, $id)->first($fields, $this->model::class);
+            return $this->query->where($primaryKey, $id)->first($fields, $this->model::class);
         }
     }
 
     /**
      * 查找模型集合
      */
-    public function all(array $fields = null)
+    public function all(array $fields = null): array
     {
         return array_map(
             fn($data) => (clone $this->model)->setAttr($data),
@@ -45,7 +45,7 @@ class ModelQuery
     /**
      * 获取默认的表字段
      */
-    private function getFields($fields)
+    private function getFields(array $fields): array
     {
         return $fields ?: array_map(
             fn($field) => $field->getName(),

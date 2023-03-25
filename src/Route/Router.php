@@ -11,7 +11,7 @@ class Router
     /**
      * 生成路由文件
      */
-    public function handle($namespace)
+    public function handle($namespace): void
     {
         $routes = [];
         // 获取根命名空间
@@ -52,6 +52,7 @@ class Router
 
     /**
      * 获取匹配路由
+     * @throws ResponseException
      */
     public function get($method, $url)
     {

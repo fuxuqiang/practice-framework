@@ -45,7 +45,7 @@ class ModelQuery
     /**
      * 获取默认的表字段
      */
-    private function getFields(array $fields): array
+    private function getFields(?array $fields): array
     {
         return $fields ?: array_map(
             fn($field) => $field->getName(),

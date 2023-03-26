@@ -4,12 +4,12 @@ namespace Fuxuqiang\Framework;
 
 class Container
 {
-    private static $binds, $instances;
+    private static array $binds = [], $instances = [];
 
     /**
      * 注册一个绑定
      */
-    public static function bind(string $name, callable $provider)
+    public static function bind(string $name, callable $provider): void
     {
         self::$binds[$name] = $provider;
     }
@@ -17,7 +17,7 @@ class Container
     /**
      * 注册一个实例到容器中
      */
-    public static function instance(string $name, $instance)
+    public static function instance(string $name, $instance): void
     {
         self::$instances[$name] = $instance;
     }
@@ -33,6 +33,7 @@ class Container
 
     /**
      * 创建一个类的实例
+     * @throws \ReflectionException
      */
     public static function newInstance(string $concrete)
     {

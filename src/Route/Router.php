@@ -10,6 +10,7 @@ class Router
 
     /**
      * 生成路由文件
+     * @throws \ReflectionException
      */
     public function handle($namespace): void
     {

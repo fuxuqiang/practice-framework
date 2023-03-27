@@ -89,7 +89,7 @@ class Mysql
     /**
      * 添加WHERE条件
      */
-    public function where(array|string $col, string $operator = null, $val = null): static
+    public function where(array|string $col, string $operator = null, string|int|float $val = null): static
     {
         if (is_array($col)) {
             foreach ($col as $key => $item) {
@@ -112,7 +112,7 @@ class Mysql
     /**
      * 设置WHERE条件
      */
-    private function setWhere(string $col, string $operator, $val): void
+    private function setWhere(string $col, string $operator, string|int|float $val): void
     {
         $this->whereRaw("`$col`$operator ?", [$val]);
     }

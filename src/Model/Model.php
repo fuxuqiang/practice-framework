@@ -4,25 +4,29 @@ namespace Fuxuqiang\Framework\Model;
 
 use Fuxuqiang\Framework\Connector;
 
+/**
+ * @method static ModelQuery where(array|string $col, string $operator = null, string|int|float $val = null)
+ * @method static static first()
+ */
 class Model
 {
     /**
      * @var string
      */
-    private $table;
+    private string $table;
 
     /**
      * @var Connector
      */
-    private static $connector;
+    private static Connector $connector;
 
     /**
      * @var string
      */
-    protected $primaryKey = 'id';
+    protected string $primaryKey = 'id';
 
     /**
-     * @param string $table
+     * @param string|null $table
      */
     public function __construct(string $table = null)
     {
@@ -32,7 +36,7 @@ class Model
     /**
      * 设置获取数据库操作类的方法
      */
-    public static function setConnector(Connector $connector)
+    public static function setConnector(Connector $connector): void
     {
         self::$connector = $connector;
     }
@@ -40,7 +44,7 @@ class Model
     /**
      * 获取当前表名
      */
-    public static function getTable()
+    public static function getTable(): string
     {
         return strtolower(
             preg_replace('/([a-z])([A-Z])/', '$1_$2', basename(str_replace('\\', '/', static::class)))
@@ -50,7 +54,7 @@ class Model
     /**
      * 获取表主键
      */
-    public function getPrimaryKey()
+    public function getPrimaryKey(): string
     {
         return $this->primaryKey;
     }
@@ -58,7 +62,7 @@ class Model
     /**
      * 设置模型属性
      */
-    public function setAttr($attrs)
+    public function setAttr($attrs): static
     {
         foreach ($attrs as $key => $attr) {
             $this->{$key} = $attr;

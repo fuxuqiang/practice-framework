@@ -4,6 +4,9 @@ namespace Fuxuqiang\Framework\Model;
 
 use Fuxuqiang\Framework\Mysql;
 
+/**
+ * @method ModelQuery self where(array|string $col, null|string $operator = null, float|int|null|string $val = null)
+ */
 class ModelQuery
 {
     public function __construct(private readonly Mysql $query, private readonly Model $model) {}

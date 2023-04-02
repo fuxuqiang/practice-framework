@@ -2,7 +2,7 @@
 
 namespace Fuxuqiang\Framework\Model;
 
-use Fuxuqiang\Framework\Mysql;
+use Fuxuqiang\Framework\{Mysql, Str};
 
 /**
  * @method self fields(array $fields)
@@ -21,7 +21,7 @@ class ModelQuery
      */
     public function find($id, array $fields = null)
     {
-        $primaryKey = $this->model->getPrimaryKey();
+        $primaryKey = Str::snake($this->model->getPrimaryKey());
         $fields = $this->getFields($fields);
         if (is_array($id)) {
             $this->query->whereIn($primaryKey, $id);
@@ -66,11 +66,11 @@ class ModelQuery
      */
     public function __call($name, $args)
     {
-        if (method_exists($this->model, $method = 'scope' . ucfirst($name))) {
-            $result = $this->model->$method($this->query, ...$args);
+        if (method_exists($this->model, $method = 'scope'.ucfirst($name))) {
+            $result = $this->model->$method($this, ...$args);
         } else {
             $result = $this->query->$name(...$args);
         }
-        return $result instanceof Mysql ? $this : $result;
+        return $result;
     }
 }

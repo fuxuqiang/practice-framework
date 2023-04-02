@@ -2,7 +2,8 @@
 
 namespace Fuxuqiang\Framework\Model;
 
-use Fuxuqiang\Framework\{Connector, Mysql};
+use Fuxuqiang\Framework\{Connector, Mysql, Str};
+use Exception;
 
 /**
  * @method static ModelQuery fields(array $fields)
@@ -47,13 +48,7 @@ class Model
      */
     public static function getTable(): string
     {
-        return strtolower(
-            preg_replace(
-                '/(?<=[a-z])[A-Z]/',
-                '_$0',
-                basename(str_replace('\\', '/', static::class))
-            )
-        );
+        return Str::snake(basename(str_replace('\\', '/', static::class)));
     }
 
     /**
@@ -66,17 +61,23 @@ class Model
 
     /**
      * 保存至数据库
+     * @throws Exception
      */
-    public function save(): int|string
+    public function save(): void
     {
-        $id = $this->query()->insert(
-            array_map(
-                fn($property) => [$property->name => $property->getValue()],
-                (new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PUBLIC)
-            )
-        );
-        $this->{$this->primaryKey} = $id;
-        return $id;
+        foreach ((new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+            if ($property->isInitialized($this)) {
+                $data[Str::snake($property->name)] = $property->getValue($this);
+            }
+        }
+        if (empty($data)) {
+            throw new Exception('模型字段为空');
+        }
+        if (empty($this->{$this->primaryKey})) {
+            $this->query()->insert($data);
+        } else {
+            $this->query()->update($data);
+        }
     }
 
     /**
@@ -85,7 +86,7 @@ class Model
     public function setAttr($attrs): static
     {
         foreach ($attrs as $key => $attr) {
-            $this->{$key} = $attr;
+            $this->{Str::camel($key)} = $attr;
         }
         return $this;
     }
@@ -95,7 +96,7 @@ class Model
      */
     public function __call($name, $args)
     {
-        return $this->query()->where($this->primaryKey, $this->{$this->primaryKey})->$name(...$args);
+        return $this->query()->where(Str::snake($this->primaryKey), $this->{$this->primaryKey})->$name(...$args);
     }
 
     /**

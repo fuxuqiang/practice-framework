@@ -112,9 +112,9 @@ class Mysql
     /**
      * 设置WHERE条件
      */
-    private function setWhere(string $field, string $operator, string|int|float $value): void
+    private function setWhere(string $field, string $operator, string|int|float $value): static
     {
-        $this->whereRaw("`$field`$operator ?", [$value]);
+        return $this->whereRaw("`$field`$operator ?", [$value]);
     }
 
     /**
@@ -130,49 +130,49 @@ class Mysql
     /**
      * 添加 WHERE {COLUMN} IS NULL 条件
      */
-    public function whereNull(string $col): static
+    public function whereNull(string $field): static
     {
-        return $this->whereRaw("`$col` IS NULL");
+        return $this->whereRaw("`$field` IS NULL");
     }
 
     /**
      * 添加 WHERE {COLUMN} IS NOT NULL 条件
      */
-    public function whereNotNull(string $col): static
+    public function whereNotNull(string $field): static
     {
-        return $this->whereRaw("`$col` IS NOT NULL");
+        return $this->whereRaw("`$field` IS NOT NULL");
     }
 
     /**
      * 添加 WHERE {COLUMN} IN 条件
      */
-    public function whereIn(string $col, array $values): static
+    public function whereIn(string $field, array $values): static
     {
-        return $this->whereRaw("`$col` IN " . $this->markers($values), $values);
+        return $this->whereRaw("`$field` IN " . $this->markers($values), $values);
     }
 
     /**
      * 添加 WHERE {COLUMN} BETWEEN 条件
      */
-    public function whereBetween(string $col, array $values): static
+    public function whereBetween(string $field, array $values): static
     {
-        return $this->whereRaw("`$col` BETWEEN ? AND ?", $values);
+        return $this->whereRaw("`$field` BETWEEN ? AND ?", $values);
     }
 
     /**
      * 添加 WHERE LIKE 条件
      */
-    public function whereLike(string|array $column, string $val): static
+    public function whereLike(string|array $field, string $val): static
     {
-        if (is_array($column)) {
-            foreach ($column as $item) {
+        if (is_array($field)) {
+            $conditions = $values = [];
+            foreach ($field as $item) {
                 $conditions[] = "`$item` LIKE ?";
                 $values[] = $val;
             }
             return $this->whereRaw(implode(' OR ', $conditions), $values);
         }
-        $this->setWhere($column, 'LIKE', $val);
-        return $this;
+        return $this->setWhere($field, 'LIKE', $val);
     }
 
     /**

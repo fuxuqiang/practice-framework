@@ -3,7 +3,6 @@
 namespace Fuxuqiang\Framework\Model;
 
 use Fuxuqiang\Framework\{Connector, Mysql, Str};
-use Exception;
 
 /**
  * @method static ModelQuery fields(array $fields)
@@ -61,7 +60,6 @@ class Model
 
     /**
      * 保存至数据库
-     * @throws Exception
      */
     public function save(): void
     {
@@ -70,13 +68,11 @@ class Model
                 $data[Str::snake($property->name)] = $property->getValue($this);
             }
         }
-        if (empty($data)) {
-            throw new Exception('模型字段为空');
-        }
+        $query = $this->query();
         if (empty($this->{$this->primaryKey})) {
-            $this->query()->insert($data);
+            $query->insert($data);
         } else {
-            $this->query()->update($data);
+            $query->update($data);
         }
     }
 

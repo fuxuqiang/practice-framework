@@ -162,17 +162,17 @@ class Mysql
     /**
      * 添加 WHERE LIKE 条件
      */
-    public function whereLike(string|array $field, string $val): static
+    public function whereLike(string|array $field, string $value): static
     {
         if (is_array($field)) {
             $conditions = $values = [];
             foreach ($field as $item) {
                 $conditions[] = "`$item` LIKE ?";
-                $values[] = $val;
+                $values[] = $value;
             }
             return $this->whereRaw(implode(' OR ', $conditions), $values);
         }
-        return $this->setWhere($field, 'LIKE', $val);
+        return $this->setWhere($field, 'LIKE', $value);
     }
 
     /**

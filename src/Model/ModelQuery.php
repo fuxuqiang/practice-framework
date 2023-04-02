@@ -5,7 +5,12 @@ namespace Fuxuqiang\Framework\Model;
 use Fuxuqiang\Framework\Mysql;
 
 /**
- * @method ModelQuery self where(array|string $col, null|string $operator = null, float|int|null|string $val = null)
+ * @method self fields(array $fields)
+ * @method self limit(int $offset, int $rowCount = null)
+ * @method self where(array|string $field, string $operator = null, float|int|string $value = null)
+ * @method self orderByDesc(string $field)
+ * @method value(string $field)
+ * @method int|string insert(array $data)
  */
 class ModelQuery
 {
@@ -51,8 +56,8 @@ class ModelQuery
     private function getFields(?array $fields): array
     {
         return $fields ?: array_map(
-            fn($field) => $field->getName(),
-            (new \ReflectionClass($this->model))->getProperties(\ReflectionProperty::IS_PUBLIC)
+            fn($field) => $field->name,
+            (new \ReflectionObject($this->model))->getProperties(\ReflectionProperty::IS_PUBLIC)
         );
     }
 

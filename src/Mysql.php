@@ -89,10 +89,10 @@ class Mysql
     /**
      * 添加WHERE条件
      */
-    public function where(array|string $col, string $operator = null, string|int|float $val = null): static
+    public function where(array|string $field, string $operator = null, string|int|float $value = null): static
     {
-        if (is_array($col)) {
-            foreach ($col as $key => $item) {
+        if (is_array($field)) {
+            foreach ($field as $key => $item) {
                 if (is_array($item)) {
                     $this->setWhere($item[0], $item[1], $item[2]);
                 } else {
@@ -100,11 +100,11 @@ class Mysql
                 }
             }
         } else {
-            if (is_null($val)) {
-                $val = $operator;
+            if (is_null($value)) {
+                $value = $operator;
                 $operator = '=';
             }
-            $this->setWhere($col, $operator, $val);
+            $this->setWhere($field, $operator, $value);
         }
         return $this;
     }
@@ -112,9 +112,9 @@ class Mysql
     /**
      * 设置WHERE条件
      */
-    private function setWhere(string $col, string $operator, string|int|float $val): void
+    private function setWhere(string $field, string $operator, string|int|float $value): void
     {
-        $this->whereRaw("`$col`$operator ?", [$val]);
+        $this->whereRaw("`$field`$operator ?", [$value]);
     }
 
     /**
@@ -206,7 +206,7 @@ class Mysql
     /**
      * ORDER BY expr DESC
      */
-    public function orderByDesc($field): static
+    public function orderByDesc(string $field): static
     {
         $this->order = "`$field` DESC";
         return $this;

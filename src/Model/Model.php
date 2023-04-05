@@ -9,8 +9,9 @@ use Fuxuqiang\Framework\{Connector, Mysql, Str};
  * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
  * @method static static first()
  * @method static static|array find($id, array $fields = null)
+ * @method bool exists(string $field, string $operator = null, string|int|float $value = null)
  */
-class Model
+abstract class Model
 {
     /**
      * @var string
@@ -28,11 +29,11 @@ class Model
     protected string $primaryKey = 'id';
 
     /**
-     * @param ?string $table
+     * 初始化表名
      */
-    public function __construct(string $table = null)
+    public function __construct()
     {
-        $this->table = $table ?: static::getTable();
+        $this->table = static::getTable();
     }
 
     /**
@@ -102,7 +103,7 @@ class Model
      */
     public static function __callStatic($name, $args)
     {
-        return (new ModelQuery(self::$connector->connect()->table(static::getTable()), new static))->$name(...$args);
+        return (new ModelQuery(new static))->$name(...$args);
     }
 
     /**

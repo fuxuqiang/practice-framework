@@ -17,7 +17,12 @@ use Fuxuqiang\Framework\{Mysql, Str};
  */
 class ModelQuery
 {
-    public function __construct(private readonly Mysql $query, private readonly Model $model) {}
+    private Mysql $query;
+
+    public function __construct(private readonly Model $model)
+    {
+        $this->query = $model->query();
+    }
 
     /**
      * 根据主键查找模型

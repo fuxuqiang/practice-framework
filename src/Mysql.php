@@ -251,10 +251,10 @@ class Mysql
     /**
      * 数据是否存在
      */
-    public function exists(string $col, $val): bool
+    public function exists(string $field, string $operator = null, string|int|float $value = null): bool
     {
         $this->limit = 1;
-        return $this->where($col, $val)->query($this->getSql("`$col`"))->num_rows > 0;
+        return $this->where($field, $operator, $value)->query($this->getSql("`$field`"))->num_rows > 0;
     }
 
     /**

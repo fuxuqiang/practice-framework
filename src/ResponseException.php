@@ -2,7 +2,7 @@
 
 namespace Fuxuqiang\Framework;
 
-class ResponseException extends \Exception
+class ResponseException extends \RuntimeException
 {
     const BAD_REQUEST = 400,
         NOT_FOUND = 404,

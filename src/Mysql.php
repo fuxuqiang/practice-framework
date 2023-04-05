@@ -215,11 +215,11 @@ class Mysql
     /**
      * 返回查询结果首行对象
      */
-    public function first(array $fields = null, string $class = null)
+    public function first(array $fields = null): bool|array|null
     {
         $this->limit = 1;
         $result = $this->fields($fields)->query($this->getSql());
-        return $class ? $result->fetch_object($class) : $result->fetch_object();
+        return $result->fetch_assoc();
     }
 
     /**
@@ -228,7 +228,7 @@ class Mysql
     public function value(string $field)
     {
         $this->limit = 1;
-        return ($row = $this->first([$field])) ? $row->$field : null;
+        return ($row = $this->first([$field])) ? $row[$field] : null;
     }
 
     /**

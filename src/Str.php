@@ -11,8 +11,6 @@ class Str
 
     public static function camel(string $str): string
     {
-        return ucfirst(
-            preg_replace_callback('/_([a-z])/', fn($matches) => strtoupper($matches[1]), $str)
-        );
+        return preg_replace_callback('/_([a-z])/', fn($matches) => strtoupper($matches[1]), $str);
     }
 }

@@ -8,6 +8,7 @@ use Fuxuqiang\Framework\{Connector, Mysql, Str};
  * @method static ModelQuery fields(array $fields)
  * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
  * @method static static first()
+ * @method static static|array find($id, array $fields = null)
  */
 class Model
 {
@@ -27,7 +28,7 @@ class Model
     protected string $primaryKey = 'id';
 
     /**
-     * @param string|null $table
+     * @param ?string $table
      */
     public function __construct(string $table = null)
     {
@@ -63,6 +64,7 @@ class Model
      */
     public function save(): void
     {
+        $data = [];
         foreach ((new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
             if ($property->isInitialized($this)) {
                 $data[Str::snake($property->name)] = $property->getValue($this);

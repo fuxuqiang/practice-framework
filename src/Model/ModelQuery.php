@@ -22,7 +22,7 @@ class ModelQuery
     /**
      * 根据主键查找模型
      */
-    public function find($id, array $fields = null)
+    public function find($id, array $fields = null): array|Model|null
     {
         $primaryKey = Str::snake($this->model->getPrimaryKey());
         $fields = $this->getFields($fields);
@@ -30,7 +30,7 @@ class ModelQuery
             $this->query->whereIn($primaryKey, $id);
             return $this->all($fields);
         } else {
-            return $this->query->where($primaryKey, $id)->first($fields, $this->model::class);
+            return $this->where($primaryKey, $id)->first($fields);
         }
     }
 
@@ -48,9 +48,21 @@ class ModelQuery
     /**
      * 查找第一个模型
      */
-    public function first(array $fields = null)
+    public function first(array $fields = null): ?Model
     {
-        return $this->query->first($this->getFields($fields), $this->model::class);
+        if ($data = $this->query->first($this->getFields($fields))) {
+            return $this->model->setAttr($data);
+        }
+        return null;
+    }
+
+    /**
+     * 查找第一个模型，查不到则抛出异常
+     * @throws ModelNotFoundException
+     */
+    public function firstOrFail(array $fields = null)
+    {
+        return ($model = $this->first($fields)) ? $model : throw new ModelNotFoundException;
     }
 
     /**
@@ -59,7 +71,7 @@ class ModelQuery
     private function getFields(?array $fields): array
     {
         return $fields ?: array_map(
-            fn($field) => $field->name,
+            fn($field) => Str::snake($field->name),
             (new \ReflectionObject($this->model))->getProperties(\ReflectionProperty::IS_PUBLIC)
         );
     }
@@ -74,6 +86,6 @@ class ModelQuery
         } else {
             $result = $this->query->$name(...$args);
         }
-        return $result;
+        return $result instanceof Mysql ? $this : $result;
     }
 }

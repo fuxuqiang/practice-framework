@@ -9,7 +9,8 @@ use Fuxuqiang\Framework\{Connector, Mysql, Str};
  * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
  * @method static static first()
  * @method static static|array find($id, array $fields = null)
- * @method bool exists(string $field, string $operator = null, string|int|float $value = null)
+ * @method static bool exists(string $field, string $operator = null, string|int|float $value = null)
+ * @method static self orderByDesc(string $field)
  */
 abstract class Model
 {
@@ -75,6 +76,7 @@ abstract class Model
         if (empty($this->{$this->primaryKey})) {
             $query->insert($data);
         } else {
+            unset($data[$this->primaryKey]);
             $query->update($data);
         }
     }

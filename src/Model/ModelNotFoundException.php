@@ -2,4 +2,4 @@
 
 namespace Fuxuqiang\Framework\Model;
 
-class ModelNotFoundException extends \RuntimeException {}
+class ModelNotFoundException extends \UnexpectedValueException {}

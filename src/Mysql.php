@@ -272,7 +272,7 @@ class Mysql
     /**
      * COUNT查询
      */
-    public function count()
+    public function count(): int
     {
         return $this->aggregate('COUNT(*)');
     }
@@ -280,7 +280,7 @@ class Mysql
     /**
      * SUM查询
      */
-    public function sum($field)
+    public function sum(string $field): int|float
     {
         return $this->aggregate("SUM(`$field`)");
     }
@@ -288,7 +288,7 @@ class Mysql
     /**
      * 聚合查询
      */
-    private function aggregate($expr)
+    private function aggregate($expr): int|float
     {
         return $this->query($this->getSql($expr))->fetch_row()[0];
     }

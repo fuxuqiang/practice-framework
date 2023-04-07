@@ -95,7 +95,7 @@ class Request extends ObjectAccess
             if (strpos($param, '.*.')) {
                 $keys = explode('.*.', $param);
                 if (!is_array($this->data[$keys[0]]) || empty($this->data[$keys[0]])) {
-                    throw new ResponseException('无效的'.$keys[0], ResponseCode::BadRequest->value);
+                    throw new ResponseException('无效的'.$keys[0], ResponseCode::BadRequest);
                 }
                 foreach ($this->data[$keys[0]] as $key => $item) {
                     $this->validateItem($item[$keys[1]] ?? null, $ruleItems, str_replace('*', $key, $param));
@@ -115,7 +115,7 @@ class Request extends ObjectAccess
     {
         $ruleItems = explode('|', $ruleItems);
         if (in_array('required', $ruleItems) && empty($data)) {
-            throw new ResponseException('缺少参数'.$param, ResponseCode::BadRequest->value);
+            throw new ResponseException('缺少参数'.$param, ResponseCode::BadRequest);
         }
         foreach ($ruleItems as $ruleItem) {
             $ruleItem = explode(':', $ruleItem);
@@ -129,7 +129,7 @@ class Request extends ObjectAccess
                     ...(isset($ruleItem[1]) ? explode(',', $ruleItem[1]) : [])
                 )
             ) {
-                throw new ResponseException('无效的'.$param, ResponseCode::BadRequest->value);
+                throw new ResponseException('无效的'.$param, ResponseCode::BadRequest);
             }
         }
     }

@@ -10,7 +10,7 @@ use Fuxuqiang\Framework\{Connector, Mysql, Str};
  * @method static static first()
  * @method static static|array find($id, array $fields = null)
  * @method static bool exists(string $field, string $operator = null, string|int|float $value = null)
- * @method static self orderByDesc(string $field)
+ * @method static static orderByDesc(string $field)
  */
 abstract class Model
 {

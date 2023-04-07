@@ -21,7 +21,7 @@ class ModelQuery
 
     public function __construct(private readonly Model $model)
     {
-        $this->query = $model->query();
+        $this->query = $model::query();
     }
 
     /**

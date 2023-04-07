@@ -15,11 +15,6 @@ use Fuxuqiang\Framework\{Connector, Mysql, Str};
 abstract class Model
 {
     /**
-     * @var string
-     */
-    private string $table;
-
-    /**
      * @var Connector
      */
     private static Connector $connector;
@@ -30,27 +25,11 @@ abstract class Model
     protected string $primaryKey = 'id';
 
     /**
-     * 初始化表名
-     */
-    public function __construct()
-    {
-        $this->table = static::getTable();
-    }
-
-    /**
      * 设置获取数据库操作类的方法
      */
     public static function setConnector(Connector $connector): void
     {
         self::$connector = $connector;
-    }
-
-    /**
-     * 获取当前表名
-     */
-    public static function getTable(): string
-    {
-        return Str::snake(basename(str_replace('\\', '/', static::class)));
     }
 
     /**
@@ -72,12 +51,10 @@ abstract class Model
                 $data[Str::snake($property->name)] = $property->getValue($this);
             }
         }
-        $query = $this->query();
         if (empty($this->{$this->primaryKey})) {
-            $query->insert($data);
+            self::query()->insert($data);
         } else {
-            unset($data[$this->primaryKey]);
-            $query->update($data);
+            $this->innerQuery()->update($data);
         }
     }
 
@@ -97,7 +74,7 @@ abstract class Model
      */
     public function __call($name, $args)
     {
-        return $this->query()->where(Str::snake($this->primaryKey), $this->{$this->primaryKey})->$name(...$args);
+        return $this->innerQuery()->$name(...$args);
     }
 
     /**
@@ -111,8 +88,17 @@ abstract class Model
     /**
      * 获取数据库连接
      */
-    public function query(): Mysql
+    public static function query(): Mysql
     {
-        return self::$connector->connect()->table($this->table);
+        return self::$connector->connect()
+            ->table(Str::snake(basename(str_replace('\\', '/', static::class))));
+    }
+
+    /**
+     * 获取限定主键WHERE条件的数据连接
+     */
+    private function innerQuery(): Mysql
+    {
+        return self::query()->where($this->primaryKey, $this->{$this->primaryKey});
     }
 }

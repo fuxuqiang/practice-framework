@@ -8,29 +8,16 @@ use mysqli_result;
 
 class Mysql
 {
-    /**
-     * @var mysqli_stmt
-     */
     private mysqli_stmt $stmt;
 
-    /**
-     * @var int
-     */
     private static int $trans = 0;
 
-    /**
-     * @var string
-     */
     private string $table, $selectExpr, $from, $limit = '', $lock = '', $order = '';
 
-    /**
-     * @var array
-     */
-    private array $fields, $conditions = [], $params = [];
+    private ?array $fields;
 
-    /**
-     * @param mysqli $mysqli
-     */
+    private array $conditions = [], $params = [];
+
     public function __construct(private readonly mysqli $mysqli) {}
 
     /**
@@ -80,7 +67,7 @@ class Mysql
     /**
      * 设置查询列
      */
-    public function fields(array $fields): static
+    public function fields(?array $fields): static
     {
         $this->fields = $fields;
         return $this;

@@ -5,6 +5,7 @@ namespace Fuxuqiang\Framework\Model;
 use Fuxuqiang\Framework\{Mysql, Str};
 
 /**
+ * @method array column(string $col, string $idx = null)
  * @method self fields(array $fields)
  * @method self limit(int $offset, int $rowCount = null)
  * @method self where(array|string $field, string $operator = null, float|int|string $value = null)
@@ -13,7 +14,6 @@ use Fuxuqiang\Framework\{Mysql, Str};
  * @method self whereLike(string|array $field, string $value)
  * @method self orderByDesc(string $field)
  * @method value(string $field)
- * @method int|string insert(array $data)
  */
 class ModelQuery
 {

@@ -2,15 +2,18 @@
 
 namespace Fuxuqiang\Framework\Model;
 
-use Fuxuqiang\Framework\{Connector, Mysql, Str};
+use Fuxuqiang\Framework\{Mysql, Str};
 
 /**
- * @method static ModelQuery fields(array $fields)
- * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
- * @method static static first()
- * @method static static|array find($id, array $fields = null)
+ * @method static array all(array $fields = null)
  * @method static bool exists(string $field, string $operator = null, string|int|float $value = null)
+ * @method static ModelQuery fields(array $fields)
+ * @method static static|array find($id, array $fields = null)
+ * @method static static first()
  * @method static static orderByDesc(string $field)
+ * @method static bool truncate()
+ * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
+ * @method static ModelQuery whereRaw(string $cond, array $values = [])
  */
 abstract class Model
 {

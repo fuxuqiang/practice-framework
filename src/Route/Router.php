@@ -2,7 +2,7 @@
 
 namespace Fuxuqiang\Framework\Route;
 
-use Fuxuqiang\Framework\ResponseException;
+use Fuxuqiang\Framework\{ResponseCode, ResponseException};
 
 class Router
 {
@@ -57,6 +57,6 @@ class Router
      */
     public function get($method, $url)
     {
-        return (require $this->target)[$method][$url] ?? throw new ResponseException('未找到链接', ResponseException::NOT_FOUND);
+        return (require $this->target)[$method][$url] ?? throw new ResponseException('未找到链接', ResponseCode::NotFound);
     }
 }

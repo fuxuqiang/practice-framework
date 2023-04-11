@@ -6,12 +6,9 @@ use PHPUnit\Framework\Assert;
 
 class TestResponse extends ObjectAccess
 {
-    private int $status;
-
-    public function __construct($response, $status)
+    public function __construct($response, private readonly ResponseCode $status)
     {
         $this->data = $response;
-        $this->status = $status;
     }
 
     /**
@@ -37,22 +34,13 @@ class TestResponse extends ObjectAccess
      */
     public function assertOk(): static
     {
-        return $this->assertStatus(200);
-    }
-
-    /**
-     * 断言响应内容中包含指定子集
-     */
-    public function assertArraySubset($subset): static
-    {
-        Assert::assertTrue(array_replace_recursive($this->data, $subset) == $this->data);
-        return $this;
+        return $this->assertStatus(ResponseCode::OK);
     }
 
     /**
      * 打印内容
      */
-    public function print()
+    public function print(): void
     {
         fwrite(STDERR, json_encode($this->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL);
     }

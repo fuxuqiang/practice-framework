@@ -7,6 +7,7 @@ use Fuxuqiang\Framework\{Mysql, Str};
 /**
  * @method array column(string $col, string $idx = null)
  * @method self fields(array $fields)
+ * @method int|string insert(array $data)
  * @method self limit(int $offset, int $rowCount = null)
  * @method self where(array|string $field, string $operator = null, float|int|string $value = null)
  * @method self whereBetween(string $field, array $values)

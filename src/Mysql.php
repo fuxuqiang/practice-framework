@@ -107,9 +107,9 @@ class Mysql
     /**
      * 设置原生WHERE条件
      */
-    public function whereRaw(string $cond, array $values = []): static
+    public function whereRaw(string $condition, array $values = []): static
     {
-        $this->conditions[] = $cond;
+        $this->conditions[] = $condition;
         array_push($this->params, ...$values);
         return $this;
     }

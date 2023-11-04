@@ -6,15 +6,18 @@ use Fuxuqiang\Framework\{Mysql, Str};
 
 /**
  * @method array column(string $col, string $idx = null)
+ * @method int count()
  * @method self fields(array $fields)
  * @method int|string insert(array $data)
- * @method self limit(int $offset, int $rowCount = null)
+ * @method self limit(int $limit)
  * @method self where(array|string $field, string $operator = null, float|int|string $value = null)
  * @method self whereBetween(string $field, array $values)
  * @method self whereIn(string $field, array $values)
  * @method self whereLike(string|array $field, string $value)
+ * @method self offset(int $offset)
+ * @method self orderBy(string $field)
  * @method self orderByDesc(string $field)
- * @method value(string $field)
+ * @method string|null value(string $field)
  */
 class ModelQuery
 {
@@ -69,6 +72,14 @@ class ModelQuery
     public function firstOrFail(array $fields = null)
     {
         return ($model = $this->first($fields)) ? $model : throw new ModelNotFoundException;
+    }
+
+    /**
+     * 模型是否存在
+     */
+    public function exists(): bool
+    {
+        return (bool)$this->query->first([$this->model->getPrimaryKey()]);
     }
 
     /**

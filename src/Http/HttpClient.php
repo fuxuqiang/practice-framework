@@ -51,7 +51,8 @@ class HttpClient
      */
     public function addHandle(string $url, array $params = [], array $opt = [], string $method = 'GET'): void
     {
-        curl_multi_add_handle($this->mh, $ch = self::getHandle($url, $params, $opt, $method));
+        $ch = self::getHandle($url, $params, $opt, $method);
+        curl_multi_add_handle($this->mh, $ch);
         $this->chs[(int) $ch] = new CurlHandle($ch, $params);
     }
 
@@ -89,7 +90,8 @@ class HttpClient
         if ($method == 'POST') {
             $opts += [CURLOPT_POSTFIELDS => $params];
         }
-        curl_setopt_array($ch = curl_init($url), $opts + [CURLOPT_RETURNTRANSFER => true]);
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $opts + [CURLOPT_RETURNTRANSFER => true]);
         return $ch;
     }
 }

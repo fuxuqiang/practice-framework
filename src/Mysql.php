@@ -12,7 +12,9 @@ class Mysql
 
     private static int $trans = 0;
 
-    private string $table, $selectExpr, $from, $limit = '', $lock = '', $order = '';
+    private string $table, $selectExpr, $from, $lock = '', $order = '';
+
+    private int $offset = 0, $limit = 0;
 
     private ?array $fields;
 
@@ -177,8 +179,7 @@ class Mysql
     public function rand(int $limit): static
     {
         $this->order = 'RAND()';
-        $this->limit = $limit;
-        return $this;
+        return $this->limit($limit);
     }
 
     /**
@@ -249,7 +250,8 @@ class Mysql
      */
     public function paginate(int $page, int $perPage): array
     {
-        $this->limit = ($page - 1) * $perPage . ',' . $perPage;
+        $this->limit = $perPage;
+        $this->offset = ($page - 1) * $perPage;
         return [
             'data' => $this->all(),
             'total' => $this->count()
@@ -338,11 +340,20 @@ class Mysql
     }
 
     /**
-     * 添加LIMIT子句
+     * 设置row_count
      */
-    public function limit(int $offset, int $rowCount = null): static
+    public function limit(int $limit): static
     {
-        $this->limit = $rowCount ?  $offset . ',' . $rowCount : $offset;
+        $this->limit = $limit;
+        return $this;
+    }
+
+    /**
+     * 设置offset
+     */
+    public function offset(int $offset): static
+    {
+        $this->offset = $offset;
         return $this;
     }
 
@@ -437,7 +448,7 @@ class Mysql
             ($this->from ?? "`$this->table`")
             . $this->getWhere()
             . ($this->order ? ' ORDER BY ' . $this->order : '')
-            . ($this->limit ? ' LIMIT ' . $this->limit : '')
+            . ($this->limit ? ' LIMIT ' . ($this->offset ? $this->offset . ',' . $this->limit : $this->limit) : '')
             . $this->lock
         );
     }

@@ -49,7 +49,7 @@ class HttpClient
     /**
      * 向批处理会话中添加curl句柄
      */
-    public function addHandle(string $url, array $params = [], array $opt = [], string $method = 'GET'): void
+    public function addHandle(string $url, array|string $params = [], array $opt = [], Method $method = Method::GET): void
     {
         $ch = self::getHandle($url, $params, $opt, $method);
         curl_multi_add_handle($this->mh, $ch);
@@ -59,7 +59,7 @@ class HttpClient
     /**
      * 移除批处理会话中的curl句柄
      */
-    public function removeHandle($ch): CurlHandle
+    public function removeHandle(\CurlHandle $ch): CurlHandle
     {
         curl_multi_remove_handle($this->mh, $ch);
         $id = (int) $ch;
@@ -72,7 +72,7 @@ class HttpClient
      * 发送请求
      * @throws Exception
      */
-    public static function request($url, $params, $opts = [], $method = 'POST'): bool|string
+    public static function request(string $url, array|string $params, array $opts = [], Method $method = Method::POST): bool|string
     {
         $ch = self::getHandle($url, $params, $opts, $method);
         $content = curl_exec($ch);
@@ -85,9 +85,9 @@ class HttpClient
     /**
      * 获取curl句柄
      */
-    private static function getHandle($url, $params, $opts, $method): \CurlHandle|bool
+    private static function getHandle(string $url, array|string $params, array $opts, Method $method): \CurlHandle|bool
     {
-        if ($method == 'POST') {
+        if ($method == Method::POST) {
             $opts += [CURLOPT_POSTFIELDS => $params];
         }
         $ch = curl_init($url);

@@ -61,6 +61,7 @@ abstract class Model
 
     /**
      * 批量保存至数据库
+     * @param static[] $data
      */
     public static function batchSave(array $data): void
     {
@@ -110,15 +111,14 @@ abstract class Model
     {
         $data = [];
         foreach ($this->getProperties() as $property) {
-            if ($property->isInitialized($this)) {
-                $data[Str::snake($property->name)] = $property->getValue($this);
-            }
+            $data[Str::snake($property->name)] = $property->isInitialized($this) ? $property->getValue($this) : null;
         }
         return $data;
     }
 
     /**
      * 获取模型字段
+     * @return \ReflectionProperty[]
      */
     public function getProperties(): array
     {

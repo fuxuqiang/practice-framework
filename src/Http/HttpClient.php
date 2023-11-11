@@ -26,24 +26,21 @@ class HttpClient
     /**
      * 批量发送请求
      */
-    public function multiRequest($timeout = 30, $interval = 0)
+    public function multiRequest($interval = 0, $timeout = 30)
     {
-        $start = time();
         $active = 0;
+        $start = time();
         do {
-            while (curl_multi_exec($this->mh, $active) != CURLM_OK);
+            $status = curl_multi_exec($this->mh, $active);
             if (curl_multi_select($this->mh) == -1 || time() - $start > $timeout) {
-                foreach ($this->chs as $ch) {
-                    yield $this->removeHandle($ch->handle);
-                }
+                sleep($interval * 5);
                 return;
             }
-            sleep($interval);
             while ($info = curl_multi_info_read($this->mh)) {
-                $start = time();
                 yield $this->removeHandle($info['handle']);
             }
-        } while ($this->chs);
+            sleep($interval);
+        } while ($active && $status == CURLM_OK);
     }
 
     /**

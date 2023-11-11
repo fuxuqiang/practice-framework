@@ -304,10 +304,11 @@ class Mysql
      */
     private function into(string $action, array $data): bool
     {
-        if (is_array(reset($data))) {
-            $fields = $this->fields;
+        $item = reset($data);
+        if (is_array($item)) {
+            $fields = array_keys($item);
             $markers = implode(',', array_map(fn($item) => $this->markers($item), $data));
-            $binds = array_merge(...$data);
+            $binds = array_merge(...array_map(fn($item) => array_values($item), $data));
         } else {
             $fields = array_keys($data);
             $markers = $this->markers($data);

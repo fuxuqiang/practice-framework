@@ -87,10 +87,7 @@ class ModelQuery
      */
     private function getFields(?array $fields): array
     {
-        return $fields ?: array_map(
-            fn($field) => Str::snake($field->name),
-            (new \ReflectionObject($this->model))->getProperties(\ReflectionProperty::IS_PUBLIC)
-        );
+        return $fields ?: array_map(fn($field) => Str::snake($field->name), $this->model->getProperties());
     }
 
     /**

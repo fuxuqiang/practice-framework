@@ -6,9 +6,10 @@ use Fuxuqiang\Framework\{Mysql, Str};
 
 /**
  * @method static array all(array $fields = null)
+ * @method static int count()
  * @method static bool exists(string $field, string $operator = null, string|int|float $value = null)
  * @method static ModelQuery fields(array $fields)
- * @method static static|array find($id, array $fields = null)
+ * @method static static|static[] find($id, array $fields = null)
  * @method static static first()
  * @method static static orderBy(string $field)
  * @method static bool truncate()
@@ -26,6 +27,8 @@ abstract class Model
      * @var string
      */
     protected string $primaryKey = 'id';
+
+    public final function __construct() {}
 
     /**
      * 设置获取数据库操作类的方法
@@ -48,17 +51,20 @@ abstract class Model
      */
     public function save(): void
     {
-        $data = [];
-        foreach ((new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-            if ($property->isInitialized($this)) {
-                $data[Str::snake($property->name)] = $property->getValue($this);
-            }
-        }
+        $data = $this->toArray();
         if (empty($this->{$this->primaryKey})) {
             self::query()->insert($data);
         } else {
             $this->innerQuery()->update($data);
         }
+    }
+
+    /**
+     * 批量保存至数据库
+     */
+    public static function batchSave(array $data): void
+    {
+        self::query()->insert(array_map(fn($item) => $item->toArray(), $data));
     }
 
     /**
@@ -95,6 +101,28 @@ abstract class Model
     {
         return self::$connector->connect()
             ->table(Str::snake(basename(str_replace('\\', '/', static::class))));
+    }
+
+    /**
+     * 转为数组
+     */
+    public function toArray(): array
+    {
+        $data = [];
+        foreach ($this->getProperties() as $property) {
+            if ($property->isInitialized($this)) {
+                $data[Str::snake($property->name)] = $property->getValue($this);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * 获取模型字段
+     */
+    public function getProperties(): array
+    {
+        return (new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PUBLIC);
     }
 
     /**

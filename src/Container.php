@@ -38,15 +38,12 @@ class Container
     public static function newInstance(string $concrete)
     {
         $reflector = new \ReflectionClass($concrete);
+        $constructorArgs = [];
         if ($constructor = $reflector->getConstructor()) {
             foreach ($constructor->getParameters() as $param) {
-                if ($class = $param->getDeclaringClass()) {
-                    $constructorArgs[] = $class->newInstance();
-                }
+                $constructorArgs[] = ($class = $param->getDeclaringClass()) ? $class->newInstance() : null;
             }
-            return new $concrete(...$constructorArgs);
-        } else {
-            return new $concrete;
         }
+        return $reflector->newInstanceArgs($constructorArgs);
     }
 }

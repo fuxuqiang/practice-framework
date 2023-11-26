@@ -2,7 +2,7 @@
     "name": "fuxuqiang/practice-framework",
     "description": "简易PHP框架（自己练习造轮子用的）",
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "phpunit/phpunit": "@stable",
         "ext-curl": "*",
         "ext-mysqli": "*"

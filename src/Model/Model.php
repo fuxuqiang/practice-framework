@@ -14,6 +14,7 @@ use Fuxuqiang\Framework\{Mysql, Str};
  * @method static static orderBy(string $field)
  * @method static bool truncate()
  * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
+ * @method static ModelQuery whereLike(string|array $field, string $value)
  * @method static ModelQuery whereRaw(string $cond, array $values = [])
  */
 abstract class Model

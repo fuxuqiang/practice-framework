@@ -2,8 +2,9 @@
 
 namespace Fuxuqiang\Framework\Model;
 
+use Fuxuqiang\Framework\{ResponseCode, ResponseException};
 
-class ModelNotFoundException extends \UnexpectedValueException
+class ModelNotFoundException extends ResponseException
 {
-    protected $code = \Fuxuqiang\Framework\ResponseCode::BadRequest->value;
+    protected $code = ResponseCode::BadRequest->value;
 }

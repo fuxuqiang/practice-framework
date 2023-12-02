@@ -54,7 +54,7 @@ abstract class Model
     {
         $data = $this->toArray();
         if (empty($this->{$this->primaryKey})) {
-            self::query()->insert($data);
+            $this->{$this->primaryKey} = self::query()->insert($data);
         } else {
             $this->innerQuery()->update($data);
         }

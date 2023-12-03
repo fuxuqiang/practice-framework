@@ -6,7 +6,7 @@ use Exception;
 
 class HttpClient
 {
-    private \CurlMultiHandle $mh;
+    private readonly \CurlMultiHandle $mh;
 
     private array $chs;
 

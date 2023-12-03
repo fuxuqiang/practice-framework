@@ -19,11 +19,11 @@ use Fuxuqiang\Framework\{Mysql, Str};
  * @method self orderByDesc(string $field)
  * @method string|null value(string $field)
  */
-class ModelQuery
+readonly class ModelQuery
 {
     private Mysql $query;
 
-    public function __construct(private readonly Model $model)
+    public function __construct(private Model $model)
     {
         $this->query = $model::query();
     }
@@ -63,15 +63,6 @@ class ModelQuery
             return $this->model->setAttr($data);
         }
         return null;
-    }
-
-    /**
-     * 查找第一个模型，查不到则抛出异常
-     * @throws ModelNotFoundException
-     */
-    public function firstOrFail(array $fields = null)
-    {
-        return ($model = $this->first($fields)) ? $model : throw new ModelNotFoundException;
     }
 
     /**

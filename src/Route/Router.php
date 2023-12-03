@@ -4,9 +4,9 @@ namespace Fuxuqiang\Framework\Route;
 
 use Fuxuqiang\Framework\{ResponseCode, ResponseException};
 
-class Router
+readonly class Router
 {
-    public function __construct(private $target) {}
+    public function __construct(private string $target) {}
 
     /**
      * 生成路由文件

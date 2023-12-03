@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9bdb4ce2e1b1c881ac1c28eaa0f62040",
+    "content-hash": "ef13dca3ebe29dd9aafd20452824bd87",
     "packages": [
         {
             "name": "myclabs/deep-copy",
@@ -1784,7 +1784,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "ext-curl": "*",
         "ext-mysqli": "*"
     },

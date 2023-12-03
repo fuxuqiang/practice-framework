@@ -2,12 +2,9 @@
 
 namespace Fuxuqiang\Framework\Http;
 
-class CurlHandle
+readonly class CurlHandle
 {
-    public function __construct(
-        public readonly mixed $handle,
-        public readonly array $params
-    ) {}
+    public function __construct(public mixed $handle, public array $params) {}
 
     public function getContent(): ?string
     {

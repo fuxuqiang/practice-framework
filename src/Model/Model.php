@@ -5,7 +5,7 @@ namespace Fuxuqiang\Framework\Model;
 use Fuxuqiang\Framework\{Mysql, Str};
 
 /**
- * @method static array all(array $fields = null)
+ * @method static static[] all(array $fields = null)
  * @method static int count()
  * @method static bool exists(string $field, string $operator = null, string|int|float $value = null)
  * @method static ModelQuery fields(array $fields)
@@ -14,6 +14,7 @@ use Fuxuqiang\Framework\{Mysql, Str};
  * @method static static orderBy(string $field)
  * @method static bool truncate()
  * @method static ModelQuery where(array|string $field, string $operator = null, string|int|float $value = null)
+ * @method static ModelQuery whereBetween(string $field, array $values))
  * @method static ModelQuery whereLike(string|array $field, string $value)
  * @method static ModelQuery whereRaw(string $cond, array $values = [])
  */
@@ -28,6 +29,11 @@ abstract class Model
      * @var string
      */
     protected string $primaryKey = 'id';
+
+    /**
+     * @var bool
+     */
+    protected bool $exists = false;
 
     public final function __construct() {}
 
@@ -48,15 +54,26 @@ abstract class Model
     }
 
     /**
+     * 设置模型是否存在
+     */
+    /**
+     * @param bool $exists
+     */
+    public function setExists(bool $exists): void
+    {
+        $this->exists = $exists;
+    }
+
+    /**
      * 保存至数据库
      */
     public function save(): void
     {
         $data = $this->toArray();
-        if (empty($this->{$this->primaryKey})) {
-            $this->{$this->primaryKey} = self::query()->insert($data);
-        } else {
+        if ($this->exists) {
             $this->innerQuery()->update($data);
+        } else {
+            $this->{$this->primaryKey} = self::query()->insert($data);
         }
     }
 

@@ -49,7 +49,12 @@ readonly class ModelQuery
     public function all(array $fields = null): array
     {
         return array_map(
-            fn($data) => (clone $this->model)->setAttr($data),
+            function ($data) {
+                $model = clone $this->model;
+                $model->setAttr($data);
+                $model->setExists(true);
+                return $model;
+            },
             $this->query->all($this->getFields($fields))
         );
     }
@@ -60,7 +65,9 @@ readonly class ModelQuery
     public function first(array $fields = null): ?Model
     {
         if ($data = $this->query->first($this->getFields($fields))) {
-            return $this->model->setAttr($data);
+            $this->model->setAttr($data);
+            $this->model->setExists(true);
+            return $this->model;
         }
         return null;
     }

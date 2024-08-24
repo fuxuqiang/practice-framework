@@ -26,7 +26,7 @@ class HttpClient
     /**
      * 批量发送请求
      */
-    public function multiRequest($interval = 0, $timeout = 30)
+    public function multiRequest($interval = 0, $timeout = 30): \Generator
     {
         $active = 0;
         $start = time();

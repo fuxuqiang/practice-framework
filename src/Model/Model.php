@@ -18,6 +18,7 @@ use Fuxuqiang\Framework\{Mysql, Str};
  * @method static ModelQuery whereLike(string|array $field, string $value)
  * @method static ModelQuery whereRaw(string $cond, array $values = [])
  */
+#[\AllowDynamicProperties]
 abstract class Model
 {
     /**

@@ -15,9 +15,9 @@ class JWT
      */
     public function encode($sub, $jti = ''): string
     {
-        return ($data = $this->base64Encode(json_encode($this->header)) . '.'
-            . $this->base64Encode(json_encode(['sub' => $sub, 'exp' => time() + $this->exp, 'jti' => $jti])))
-            . '.' . $this->base64Encode($this->sign($data));
+        $data = $this->base64Encode(json_encode($this->header)) . '.'
+            . $this->base64Encode(json_encode(['sub' => $sub, 'exp' => time() + $this->exp, 'jti' => $jti]));
+        return $data . '.' . $this->base64Encode($this->sign($data));
     }
 
     /**
@@ -30,12 +30,16 @@ class JWT
         if (count($data) != 3) {
             throw new Exception('token格式错误');
         }
-        if (
-            ($header = json_decode($this->base64Decode($data[0]))) && $header->alg == $this->header['alg']
-            && ($payload = json_decode($this->base64Decode($data[1]))) && $payload->exp > time()
-            && hash_equals($this->sign($data[0] . '.' . $data[1]), $this->base64Decode($data[2]))
-        ) {
-            return $payload;
+        $header = json_decode($this->base64Decode($data[0]));
+        if ($header && $header->alg == $this->header['alg']) {
+            $payload = json_decode($this->base64Decode($data[1]));
+            if (
+                $payload &&
+                $payload->exp > time() &&
+                hash_equals($this->sign($data[0] . '.' . $data[1]), $this->base64Decode($data[2]))
+            ) {
+                return $payload;
+            }
         }
         return null;
     }
@@ -53,7 +57,9 @@ class JWT
      */
     private function base64Decode($data): string
     {
-        ($remainder = strlen($data) % 4) && $data .= str_repeat('=', 4 - $remainder);
+        if ($remainder = strlen($data) % 4) {
+            $data .= str_repeat('=', 4 - $remainder);
+        }
         return base64_decode(strtr($data, '-_', '+/'));
     }
 
